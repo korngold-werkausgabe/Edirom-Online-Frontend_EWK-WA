@@ -83,11 +83,28 @@ Ext.define('EdiromOnline.Application', {
                 params: {},
                 success: Ext.bind(function(response){
                     var editions = JSON.parse(response.responseText);
-                    if(editions.length == 1) {
+                    
+                    // If there is no edition in the backend
+                    if(editions == null) {
+                        let html = `<div class="container" style="margin: 8.75%;">
+                                        <img src="icon.png"/>
+                                        <h1 style="margin-top:5px;">Edirom Online</h1>
+                                        <h3 class="navigatorCategoryTitle">No editions found.</h3>
+                                        <ul></ul></div>`;
+                        
+                        document.body.innerHTML = html;
+
+                    // If there is only one edition in the backend load it directly
+                    }else if(!Array.isArray(editions)) {
+                        this.activeEdition = editions.id;
+                        this.loadEdiromForEdition();
+
+                    // If there is only one edition in the backend load it directly
+                    }else if(editions.length == 1) {
                         this.activeEdition = editions[0].id;
                         this.loadEdiromForEdition();
-                    }else if(editions.length == 0) {
-                        document.body.appendChild(document.createTextNode('No editions found.'));
+
+                    // If there are multiple editions in the backend show a selection screen
                     }else {
                         let html = `<div class="container" style="margin: 8.75%;">
                                         <img src="icon.png"/>
