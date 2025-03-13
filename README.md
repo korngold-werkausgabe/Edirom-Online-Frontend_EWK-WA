@@ -95,6 +95,7 @@ If you intend to cite unreleased branches or commits please use the commit hash 
 
 Edirom-Online Frontend is released to the public under the terms of the [MIT] open source license.
 
+[eXist-db]: https://exist-db.org/
 [Edirom-Online milestones]: https://github.com/Edirom/Edirom-Online/milestones
 [CONTRIBUTING]: CONTRIBUTING.md
 [bwbohl/sencha-cmd]: https://github.com/bwbohl/sencha-cmd/pkgs/container/sencha-cmd
