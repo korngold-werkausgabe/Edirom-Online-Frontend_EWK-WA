@@ -63,7 +63,7 @@ Ext.define('EdiromOnline.controller.window.about.AboutWindow', {
                     <p>GitHub: <a href="${repoUrl}">${repoUrl}</a></p>
                     <p>Contributors: <br/>
                         <a href="${repoUrl}/graphs/contributors" title="See contributors to ${title} GitHub project">
-                            <img height="25px" id="github-contributors" src="https://contrib.rocks/image?repo=${repoUrl.replace(/^https?:\/\/github.com\//, '')}" alt="Avatars of contributors to ${title} in GitHub" />
+                            <img height="50px" id="github-contributors" src="https://contrib.rocks/image?repo=${repoUrl.replace(/^https?:\/\/github.com\//, '')}&max=14&columns=7" alt="Avatars of contributors to ${title} in GitHub" />
                         </a>
                     </p>
                 </section>                
@@ -72,31 +72,26 @@ Ext.define('EdiromOnline.controller.window.about.AboutWindow', {
             return resultHTML;
         }
 
-        // HTML for Edirom-Online description
-        const aboutPreface = `
-            <h1>About Edirom-Online</h1>
-            <section class="teidiv0">
-                <p>
-                    Edirom-Online is a web-based platform for the collaborative editing of complex scholarly digital editions. 
-                    It is based on the TEI XML standard and provides a rich set of tools for the collaborative editing of texts, images, and other media. 
-                    Edirom-Online is developed by the Edirom Project.
-                </p>
-                <p>
-                    The software consists of two main modules: the frontend and the backend.
-                    Information about the parts of the software can be found below.
-                </p>
-            </section>`;
-
 
         // Fetching content of CITATION.cff files and set result
         Promise.all([
-            aboutPreface,
             fetchContent('../Edirom-Online-Frontend/resources/CITATION.cff'),
             fetchContent('../Edirom-Online-Backend/resources/CITATION.cff')
-        ]).then(function([preface, frontend, backend]) {
+        ]).then(function([frontend, backend]) {
             view.setResult(`
                 <div class="tei_body">
-                    ${preface}
+                    <h1>About Edirom-Online</h1>
+                    <section class="teidiv0">
+                        <p>
+                            Edirom-Online is a web-based platform for the collaborative editing of complex scholarly digital editions. 
+                            It is based on the TEI XML standard and provides a rich set of tools for the collaborative editing of texts, images, and other media. 
+                            Edirom-Online is developed by the Edirom Project.
+                        </p>
+                        <p>
+                            The software consists of two main modules: the frontend and the backend.
+                            Information about the parts of the software can be found below.
+                        </p>
+                    </section>
                     ${frontend}
                     ${backend}
                 </div>`);
