@@ -97,11 +97,13 @@ Ext.define('EdiromOnline.Application', {
                     // If there is only one edition in the backend load it directly
                     }else if(!Array.isArray(editions)) {
                         this.activeEdition = editions.id;
+                        this.loadWebComponents();
                         this.loadEdiromForEdition();
 
                     // If there is only one edition in the backend load it directly
                     }else if(editions.length == 1) {
                         this.activeEdition = editions[0].id;
+                        this.loadWebComponents();
                         this.loadEdiromForEdition();
 
                     // If there are multiple editions in the backend show a selection screen
@@ -133,6 +135,7 @@ Ext.define('EdiromOnline.Application', {
                         
                         html += '</ul></div>';
                         document.body.innerHTML = html;
+                        this.loadWebComponents();
                     }                 
 
                 }, this),
@@ -141,6 +144,7 @@ Ext.define('EdiromOnline.Application', {
 
         }else {
             me.activeEdition = editionParam;
+            me.loadWebComponents();
             me.loadEdiromForEdition();
         }
     },
@@ -268,6 +272,32 @@ Ext.define('EdiromOnline.Application', {
         var uris = me.getController('PreferenceController').getPreference('start_documents_uri', true);
         if(uris){
             window.loadLink(uris);
+        }
+    },
+    loadWebComponents: function() {
+        var me = this;
+        var components = me.getController('PreferenceController').getPreference('web-components', true);
+        
+        if(components){
+            if (components['edirom_keycloak_handler']) {
+                // Dynamically load the keycloak handler script
+                var handlerScript = document.createElement('script');
+                handlerScript.src = components['edirom_keycloak_handler'].script || 'resources/web-components/edirom-keycloak-handler/keycloak-handler.js';
+                document.body.appendChild(handlerScript);
+
+                // Create the keycloak handler element
+                var handlerElement = document.createElement('keycloak-handler');
+                document.body.appendChild(handlerElement);
+
+                // Set attributes for the keycloak handler element
+                handlerElement.setAttribute('url', components['edirom_keycloak_handler']['url']);
+                handlerElement.setAttribute('realm', components['edirom_keycloak_handler']['realm']);
+                handlerElement.setAttribute('client-id', components['edirom_keycloak_handler']['client_id']);
+                handlerElement.setAttribute(
+                    'redirect_uri',
+                    window.location.origin + (components['edirom_keycloak_handler']['redirect_uri'] || window.location.origin + '/silent-check-sso.html')
+                );
+            }
         }
     }
 });
