@@ -41,4 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: edirom-online-frontend-xar
-          path: build-xar/*.xar
+          path: ${{ github.workspace }}/build-xar/*.xar
