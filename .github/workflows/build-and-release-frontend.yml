@@ -57,6 +57,7 @@ jobs:
             git tag -d latest || true
 
         - name: Create Release
+          id: create_release
           uses: actions/create-release@v1
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,6 +73,6 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
             upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: build-xar/edirom-online-frontend-xar.xar
+            asset_path: edirom-online-frontend-xar/edirom-online-frontend-xar.xar
             asset_name: edirom-online-frontend-ewk_latest.xar
-            asset_content_type: application/octet-stream 
+            asset_content_type: application/octet-stream
