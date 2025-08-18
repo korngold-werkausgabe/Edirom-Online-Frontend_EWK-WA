@@ -1,0 +1,7 @@
+[submodule "resources/web-components/edirom-keycloak-handler"]
+	path = resources/web-components/edirom-keycloak-handler
+	url = https://github.com/Edirom/edirom-keycloak-handler.git
+[submodule "packages/eoTheme/resources/fonts/euryanthe"]
+    active = true
+    path = packages/eoTheme/resources/fonts/euryanthe
+    url = https://github.com/Edirom/EuryantheFont.git
