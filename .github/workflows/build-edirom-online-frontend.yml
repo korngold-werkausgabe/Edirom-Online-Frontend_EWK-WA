@@ -25,7 +25,7 @@ jobs:
 
       - name: Clone Sencha CMD Dockerfile
         run: |
-          git clone --depth 1 --filter=blob:none --sparse git@github.com:bwbohl/sencha-cmd.git /tmp/sencha-cmd
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/bwbohl/sencha-cmd.git /tmp/sencha-cmd
           cd /tmp/sencha-cmd
           git sparse-checkout set Dockerfile
 
