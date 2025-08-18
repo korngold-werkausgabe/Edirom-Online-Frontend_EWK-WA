@@ -35,10 +35,10 @@ jobs:
 
       - name: Run Build in Container
         run: |
-          docker run --rm -v ${{ github.workspace }}:/app edirom-online-build bash -c "./build.sh"
+          docker run --rm -v ${{ github.workspace }}:/app edirom-online-build bash -c "cd app && ./build.sh"
 
       - name: Upload XAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: edirom-online-frontend-xar
-          path: ${{ github.workspace }}/build-xar/*.xar
+          path: build-xar/*.xar
