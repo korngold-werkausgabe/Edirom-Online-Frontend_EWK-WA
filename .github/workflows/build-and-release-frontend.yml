@@ -52,12 +52,12 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       steps:
-        - name: Download XAR Artifact
+        - name: Download XAR artifact
           uses: actions/download-artifact@v4
           with:
             name: eof-ewk-xar
 
-        - name: Download build folder Artifact
+        - name: Download build folder artifact
           uses: actions/download-artifact@v4
           with:
             name: eof-ewk-build
@@ -65,6 +65,10 @@ jobs:
         - name: Rename XAR file
           run: |
             mv Edirom-Online-Frontend*.xar eof-ewk-latest.xar
+
+        - name: Archive build folder
+          run: |
+            tar -czf eof-ewk-build.tar.gz eof-ewk-build
 
         - name: Create Release if not exists
           id: create_release
@@ -97,7 +101,6 @@ jobs:
               core.setOutput('upload_url', release.data.upload_url);
 
         - name: Get Release by Tag
-
           id: get_release
           uses: actions/github-script@v6
           with:
@@ -146,13 +149,6 @@ jobs:
             asset_path: ./eof-ewk-latest.xar
             asset_name: eof-ewk-latest.xar
             asset_content_type: application/octet-stream
-
-        - name: List folder
-          run: ls -la
-
-        - name: Archive build folder
-          run: |
-            tar -czf eof-ewk-build.tar.gz eof-ewk-build
 
         - name: Upload build folder to Release
           uses: actions/upload-release-asset@v1
