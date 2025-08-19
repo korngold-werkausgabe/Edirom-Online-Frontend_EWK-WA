@@ -147,6 +147,9 @@ jobs:
             asset_name: eof-ewk-latest.xar
             asset_content_type: application/octet-stream
 
+        - name: List folder
+          run: ls -la
+
         - name: Archive build folder
           run: |
             tar -czf eof-ewk-build.tar.gz eof-ewk-build
