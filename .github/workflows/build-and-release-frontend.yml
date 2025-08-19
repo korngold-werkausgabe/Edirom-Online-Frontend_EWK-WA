@@ -51,15 +51,9 @@ jobs:
           with:
             name: eof-ewk
 
-        - name: List files before rename
-          run: ls -l
-
         - name: Rename XAR file
           run: |
             mv Edirom-Online-Frontend*.xar eof-ewk-latest.xar
-
-        - name: List files after rename
-          run: ls -l
         - name: Get Release by Tag
           id: get_release
           uses: actions/github-script@v6
@@ -78,6 +72,6 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
             upload_url: ${{ steps.get_release.outputs.result }}
-            asset_path: eof-ewk/eof-ewk-latest.xar
+            asset_path: eof-ewk-latest.xar
             asset_name: eof-ewk-latest.xar
             asset_content_type: application/octet-stream
