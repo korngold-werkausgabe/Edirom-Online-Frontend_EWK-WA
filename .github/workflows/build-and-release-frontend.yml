@@ -40,8 +40,14 @@ jobs:
       - name: Upload XAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eof-ewk
+          name: eof-ewk-xar
           path: build-xar/*.xar
+
+      - name: Upload build folder artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eof-ewk-build
+          path: build
   release:
       needs: build
       runs-on: ubuntu-latest
@@ -49,7 +55,12 @@ jobs:
         - name: Download XAR Artifact
           uses: actions/download-artifact@v4
           with:
-            name: eof-ewk
+            name: eof-ewk-xar
+
+        - name: Download build folder Artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: eof-ewk-build
 
         - name: Rename XAR file
           run: |
@@ -104,9 +115,11 @@ jobs:
 
         - name: Delete old assets if exist
           uses: actions/github-script@v6
+          env:
+            RELEASE_ID: ${{ steps.get_release.outputs.release_id }}
           with:
             script: |
-              const release_id = '${{ steps.get_release.outputs.release_id }}';
+              const release_id = process.env.RELEASE_ID;
               const asset_names = ['eof-ewk-latest.xar', 'eof-ewk-build.tar.gz'];
               const { data: assets } = await github.rest.repos.listReleaseAssets({
                 owner: context.repo.owner,
