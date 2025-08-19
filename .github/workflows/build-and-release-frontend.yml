@@ -67,6 +67,28 @@ jobs:
               });
               core.setOutput('upload_url', release.data.upload_url);
 
+        - name: Delete old assets if exist
+          uses: actions/github-script@v6
+          with:
+            script: |
+              const release_id = '${{ steps.get_release.outputs.release_id }}';
+              const asset_names = ['eof-ewk-latest.xar', 'eof-ewk-build.tar.gz'];
+              const { data: assets } = await github.rest.repos.listReleaseAssets({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release_id
+              });
+              for (const asset of assets) {
+                if (asset_names.includes(asset.name)) {
+                  await github.rest.repos.deleteReleaseAsset({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    asset_id: asset.id
+                  });
+                  console.log(`Deleted old asset: ${asset.name}`);
+                }
+              }
+
         - name: Upload XAR to Release
           uses: actions/upload-release-asset@v1
           env:
