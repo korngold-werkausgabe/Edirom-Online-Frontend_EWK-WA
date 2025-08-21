@@ -39,6 +39,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "EdiromOnline.controller.desktop.TopBar": [],
   "EdiromOnline.controller.navigator.Navigator": [],
   "EdiromOnline.controller.window.AnnotationView": [],
+  "EdiromOnline.controller.window.AnnotationsView": [],
   "EdiromOnline.controller.window.HeaderView": [],
   "EdiromOnline.controller.window.HelpWindow": [],
   "EdiromOnline.controller.window.SingleWindowController": [],
@@ -71,6 +72,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "EdiromOnline.view.utils.EnhancedSlider": [],
   "EdiromOnline.view.utils.Lightbox": [],
   "EdiromOnline.view.window.AnnotationView": [],
+  "EdiromOnline.view.window.AnnotationsView": [],
   "EdiromOnline.view.window.BottomBar": [],
   "EdiromOnline.view.window.HeaderView": [],
   "EdiromOnline.view.window.HelpWindow": [],
@@ -952,6 +954,7 @@ Ext.ClassManager.addNameAliasMappings({
   "EdiromOnline.controller.desktop.TopBar": [],
   "EdiromOnline.controller.navigator.Navigator": [],
   "EdiromOnline.controller.window.AnnotationView": [],
+  "EdiromOnline.controller.window.AnnotationsView": [],
   "EdiromOnline.controller.window.HeaderView": [],
   "EdiromOnline.controller.window.HelpWindow": [],
   "EdiromOnline.controller.window.SingleWindowController": [],
@@ -995,6 +998,9 @@ Ext.ClassManager.addNameAliasMappings({
   "EdiromOnline.view.utils.Lightbox": [],
   "EdiromOnline.view.window.AnnotationView": [
     "widget.annotationView"
+  ],
+  "EdiromOnline.view.window.AnnotationsView": [
+    "widget.annotationsView"
   ],
   "EdiromOnline.view.window.BottomBar": [
     "widget.window.bottombar"

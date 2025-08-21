@@ -126,6 +126,7 @@ Ext.define('EdiromOnline.controller.window.SingleWindowController', {
             case 'facsimileView': return 'Facsimile';
             case 'textView': return getLangString('controller.window.Window_textView');
             case 'annotationView': return getLangString('controller.window.Window_annotationView');
+            case 'annotationsView': return getLangString('controller.window.Window_annotationView');
             case 'textFacsimileSplitView': return getLangString('controller.window.Window_textFacsimileSplitView');
             //TODO:case 'searchView': return 'Suche';
         }
@@ -143,6 +144,7 @@ Ext.define('EdiromOnline.controller.window.SingleWindowController', {
             case 'textView': return 'EdiromOnline.view.window.text.TextView';
             case 'facsimileView': return 'EdiromOnline.view.window.text.FacsimileView';
             case 'annotationView': return 'EdiromOnline.view.window.AnnotationView';
+            case 'annotationsView': return 'EdiromOnline.view.window.AnnotationsView';
             case 'textFacsimileSplitView': return 'EdiromOnline.view.window.text.TextFacsimileSplitView';
             //TODO:case 'searchView': return 'EdiromOnline.view.window.SearchView';
         }
