@@ -28,7 +28,7 @@
     <tstamp/>
 
     <target name="check-dependencies">
-        <exec executable="/bin/sh" os="Linux">
+        <exec executable="/bin/sh" os="Linux" failonerror="true">
             <arg value="-c"/>
             <arg value="type sencha ant ruby &gt;&amp;2"/>
         </exec>
