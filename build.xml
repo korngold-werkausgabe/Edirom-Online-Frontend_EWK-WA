@@ -57,7 +57,7 @@
     </target>
 
 
-    <target name="xar">
+    <target name="copy-xar-resources">
         <copy todir="${build.dir}" preservelastmodified="true">
             <fileset dir="${exist.dir}">
                 <exclude name="*.png"/>
@@ -75,6 +75,9 @@
                 <include name="controller.xq"/>
             </fileset>
         </copy>
+    </target>
+    
+    <target name="xar" depends="copy-xar-resources">
         <mkdir dir="${dist.dir}"/>
         <zip basedir="${build.dir}" destfile="${dist.dir}/${project.app}-${project.version}-${DSTAMP}-${TSTAMP}.xar">
             <exclude name="${temp.dir.name}/**"/>
