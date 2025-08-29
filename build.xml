@@ -34,6 +34,10 @@
         </exec>
     </target>
     
+    <target name="-after-init">
+        <antcall target="check-dependencies" />
+    </target>
+    
     <target name="-before-build">
         <antcall target="clean" />
     </target>
@@ -98,6 +102,10 @@
     </target>
     
     <target name="xar" depends="check-dependencies, clean, build, download-euryanthe, inject-properties, copy-xar-resources">
+        <antcall target="-xar" />
+    </target>
+    
+    <target name="-xar">
         <mkdir dir="${dist.dir}"/>
         <zip basedir="${build.dir}" destfile="${dist.dir}/${project.app}-${project.version}-${DSTAMP}-${TSTAMP}.xar">
             <exclude name="${temp.dir.name}/**"/>
@@ -109,6 +117,7 @@
         <antcall target="download-euryanthe" />
         <antcall target="inject-properties" />
         <antcall target="copy-xar-resources" />
+        <antcall target="-xar" />
     </target>
 
 </project>
