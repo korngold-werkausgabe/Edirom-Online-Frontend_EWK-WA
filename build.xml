@@ -91,4 +91,11 @@
         </zip>
     </target>
     
+    <target name="-after-page">
+        <echo message="EDIROM AFTER RESOURCES" />
+        <antcall target="download-euryanthe" />
+        <antcall target="inject-properties" />
+        <antcall target="copy-xar-resources" />
+    </target>
+
 </project>
