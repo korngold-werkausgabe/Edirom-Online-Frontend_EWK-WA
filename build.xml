@@ -84,7 +84,7 @@
         </copy>
     </target>
     
-    <target name="xar" depends="copy-xar-resources">
+    <target name="xar" depends="check-dependencies, clean, build, download-euryanthe, inject-properties, copy-xar-resources">
         <mkdir dir="${dist.dir}"/>
         <zip basedir="${build.dir}" destfile="${dist.dir}/${project.app}-${project.version}-${DSTAMP}-${TSTAMP}.xar">
             <exclude name="${temp.dir.name}/**"/>
