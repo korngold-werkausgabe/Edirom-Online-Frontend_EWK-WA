@@ -65,6 +65,17 @@ Ext.define('EdiromOnline.Application', {
     activeEdition: '',
     activeWork: '', 
     backendURL: '@backend.url@',
+    
+    init: function () {
+        
+        Ext.Error.handle = function(err) {
+            if (err.level === 'warn') {
+                Ext.log({msg:err.msg, level:'warn', dump:err, stack:true});
+                return true;
+            }
+        }
+        
+    },
 
     launch: function() {
         var me = this;
