@@ -4,3 +4,4 @@ build-euryanthe
 .DS_Store
 .idea
 .vscode
+local.properties
