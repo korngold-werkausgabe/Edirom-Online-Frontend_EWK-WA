@@ -59,11 +59,6 @@ Ext.define('EdiromOnline.view.window.TopBar', {
             handler: Ext.bind(me.showViewSpecificHelp, me)
         });
 
-        me.printButton = Ext.create('Ext.button.Button', {
-            text: 'Print',
-            handler: Ext.bind(me.printButton, me)
-        });
-
         me.spaceAfterGenItems = Ext.create('Ext.toolbar.Spacer',{ xtype: 'tbspacer',
             id: me.id+'_spaceAfterGenItems',
             width: 0 });
@@ -77,10 +72,10 @@ Ext.define('EdiromOnline.view.window.TopBar', {
             me.spaceAfterGenItems/*, TODO
             me.spaceAfterViewItems,
             '->',
-            me.printButton,
             me.helpButton*/
         ];
 
+        me.viewSwitch.hide();
         me.callParent();
     },
 
@@ -96,6 +91,10 @@ Ext.define('EdiromOnline.view.window.TopBar', {
 
         me.viewToMenuItem.add(view.view.id, item);
         me.viewSwitchMenu.add(item);
+
+        if(me.viewSwitchMenu.items.length > 1) {
+            me.viewSwitch.show();
+        }
     },
 
     switchView: function(view) {
@@ -172,10 +171,5 @@ Ext.define('EdiromOnline.view.window.TopBar', {
         this.window.helpPanel.toggleCollapse(true);
         //this.window.helpPanel.isHidden();
 
-    },
-    
-    //TODO
-    printButton: function(){
-        window.open('http://localhost:8089/edirompub/data/xql/edirom_printPreview.xql?&uri=' + this.window.uri + '&type=' + this.window.type);
     }
 });
