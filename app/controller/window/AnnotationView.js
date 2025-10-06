@@ -49,7 +49,9 @@ Ext.define('EdiromOnline.controller.window.AnnotationView', {
         view.initialized = true;
     },
 
-    onShowAnnotation: function(view, uri) {
+    onShowAnnotation: function (view, uri) {
+
+        console.log("onShowAnnotation");
 
         var editionId = this.application.activeEdition;
         var lang = getPreference('application_language');

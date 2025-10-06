@@ -48,6 +48,8 @@ Ext.define('EdiromOnline.view.window.AnnotationView', {
        
         me.addEvents('showAnnotation');
 
+        console.log("me.uri", me.uri);
+
         me.activeSingleAnnotation = "";
 
         me.list = Ext.create('Ext.grid.Panel', {
@@ -302,6 +304,7 @@ Ext.define('EdiromOnline.view.window.AnnotationView', {
             edition: EdiromOnline.getApplication().activeEdition
         };
 
+        console.log("listStore", me.listStore);
         return me.listStore;
     },
 
@@ -337,7 +340,8 @@ Ext.define('EdiromOnline.view.window.AnnotationView', {
         me.showSingleAnnotation(record.get('id'));
     },
 
-    showList: function() {
+    showList: function () {
+        console.log("showList", me.list);
         var me = this;
 
         if(me.getLayout().getActiveItem() != me.list)
