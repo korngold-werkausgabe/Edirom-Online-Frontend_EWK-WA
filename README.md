@@ -34,6 +34,34 @@ When you have your system prepared with all prerequisites or you have your docke
 ./build.sh
 ```
 
+#### Overriding build properties locally
+
+Build properties can be overridden by creating a `local.properties` file in the root directory. This file allows you to customize any Ant properties without modifying the build script.
+
+Available properties for override:
+- `backend.protocol` (default: `http`)
+- `backend.host` (default: `localhost`)
+- `backend.port` (default: `8080`)
+- `backend.path` (default: `/exist/apps/Edirom-Online-Backend/`)
+- `project.version` (default: `1.0.1`)
+- `project.app` (default: `Edirom-Online-Frontend`)
+- `project.title` (default: `Edirom-Online Frontend`)
+- `repo.target` (default: `Edirom-Online-Frontend`)
+- `build.dir` (default: `build`)
+- `dist.dir` (default: `build-xar`)
+- `temp.dir.name` (default: `temp`)
+- `euryanthe.dir` (default: `build-euryanthe`)
+- `exist.dir` (default: `exist-packaging`)
+
+Example `local.properties`:
+```properties
+backend.protocol=https
+backend.host=my-custom-host
+backend.port=9090
+project.version=2.0.0
+```
+
+
 ### Starting an Edirom instance locally
 
 * prepare **exist-db**
