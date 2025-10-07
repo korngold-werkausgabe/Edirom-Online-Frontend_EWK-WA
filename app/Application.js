@@ -97,13 +97,11 @@ Ext.define('EdiromOnline.Application', {
                     // If there is only one edition in the backend load it directly
                     }else if(!Array.isArray(editions)) {
                         this.activeEdition = editions.id;
-                        this.loadWebComponents();
                         this.loadEdiromForEdition();
 
                     // If there is only one edition in the backend load it directly
                     }else if(editions.length == 1) {
                         this.activeEdition = editions[0].id;
-                        this.loadWebComponents();
                         this.loadEdiromForEdition();
 
                     // If there are multiple editions in the backend show a selection screen
@@ -135,7 +133,6 @@ Ext.define('EdiromOnline.Application', {
                         
                         html += '</ul></div>';
                         document.body.innerHTML = html;
-                        this.loadWebComponents();
                     }                 
 
                 }, this),
@@ -144,7 +141,6 @@ Ext.define('EdiromOnline.Application', {
 
         }else {
             me.activeEdition = editionParam;
-            me.loadWebComponents();
             me.loadEdiromForEdition();
         }
     },
@@ -215,7 +211,7 @@ Ext.define('EdiromOnline.Application', {
             editionCssLink.href = this.backendURL.split('apps/')[0] + me.getController('PreferenceController').getPreference('additional_css_path', true).split("xmldb:exist:///db/")[1];
             document.getElementsByTagName("head")[0].appendChild(editionCssLink);
         }
-
+        me.loadWebComponents();
     },
     
     initDataStores: function() {
