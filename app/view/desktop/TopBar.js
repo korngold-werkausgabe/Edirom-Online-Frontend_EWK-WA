@@ -71,6 +71,8 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
         
         me.searchButton.textField = me.searchTextField;
 
+        me.webSocket = Ext.create('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {});
+
         me.items = [
             new Ext.toolbar.Toolbar({
                 flex: 1,
@@ -89,7 +91,8 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
                     	me.workCombo,
                         '->',
                         me.searchTextField,
-                        me.searchButton,
+                    me.searchButton,
+                    me.webSocket,
                         me.aboutButton
                 ]
             })
