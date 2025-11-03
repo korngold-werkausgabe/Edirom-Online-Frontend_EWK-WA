@@ -27,12 +27,12 @@ Ext.define('EdiromOnline.controller.ConfigController', {
                     }
                 } catch (e) {
                     console.error('Failed to parse config.json:', e.message);
-                    me.handleConfigError(callback, scope);
+                    me.loadDefaultConfig(callback, scope);
                 }
             },
             failure: function (response) {
                 console.info('No config.json provided: Using default value for backendURL.');
-                me.handleConfigError(callback, scope);
+                me.loadDefaultConfig(callback, scope);
             }
         });
     },
@@ -42,7 +42,7 @@ Ext.define('EdiromOnline.controller.ConfigController', {
      * @param {Function} callback Callback function
      * @param {Object} scope Scope for the callback
      */
-    handleConfigError: function (callback, scope) {
+    loadDefaultConfig: function (callback, scope) {
         var me = this;
 
         // Fallback-Konfiguration
