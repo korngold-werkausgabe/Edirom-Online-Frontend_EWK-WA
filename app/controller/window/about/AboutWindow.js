@@ -24,26 +24,35 @@ Ext.define('EdiromOnline.controller.window.about.AboutWindow', {
         'window.about.AboutWindow'
     ],
 
-    init: function() {
+    init: function () {
         this.control({
             'aboutWindow': {
-               afterlayout : this.onAfterLayout
+                afterlayout: this.onAfterLayout
             }
         });
     },
 
-    onAfterLayout: function(view) {
+    onAfterLayout: function (view) {
 
         var me = this;
 
         var configController = me.getApplication().getController('ConfigController');
         var backendURL = configController && configController.hasConfig('backendURL') ? configController.getConfig('backendURL') : '@backend.url@';
 
-        if(view.initialized) return;
+        if (view.initialized) return;
         view.initialized = true;
+
+        // Specify URLs of CITATION.cff files of frontend and backend
+        const frontendURL = location.origin + location.pathname.replaceAll("/index.html", "/");
+        const frontendURLcitation = frontendURL + 'resources/CITATION.cff';
+        const backendURLcitation = backendURL + 'resources/CITATION.cff';
+
 
         // Fetching content of CITATION.cff files and turn into HTML        
         async function fetchContent(url) {
+
+            console.log("Fetching " + url);
+
             const response = await fetch(url);
             const citation = await response.text();
 
@@ -61,11 +70,11 @@ Ext.define('EdiromOnline.controller.window.about.AboutWindow', {
                     <p>${abstract}</p>
                     <p>Version: ${version}</p>
                     <p>Release date: ${releaseDate}</p>
-                    <p>DOI: <a href="https://doi.org/${doi}">${doi}</a></p>
+                    <p>DOI: <a target="_blank" href="https://doi.org/${doi}">${doi}</a></p>
                     <p>${getLangString('view.window.about.AboutWindow_License')}: ${license}</p>
-                    <p>GitHub: <a href="${repoUrl}">${repoUrl}</a></p>
+                    <p>GitHub: <a target="_blank" href="${repoUrl}">${repoUrl}</a></p>
                     <p>Contributors: <br/>
-                        <a href="${repoUrl}/graphs/contributors" title="See contributors to ${title} GitHub project">
+                        <a target="_blank" href="${repoUrl}/graphs/contributors" title="See contributors to ${title} GitHub project">
                             <img height="50px" id="github-contributors" src="https://contrib.rocks/image?repo=${repoUrl.replace(/^https?:\/\/github.com\//, '')}&max=14&columns=7" alt="Avatars of contributors to ${title} in GitHub" />
                         </a>
                     </p>
@@ -75,12 +84,11 @@ Ext.define('EdiromOnline.controller.window.about.AboutWindow', {
             return resultHTML;
         }
 
-
         // Fetching content of CITATION.cff files and set result
         Promise.all([
-            fetchContent('../resources/CITATION.cff'),
-            fetchContent(`${backendURL}resources/CITATION.cff`)
-        ]).then(function([frontend, backend]) {
+            fetchContent(frontendURLcitation),
+            fetchContent(backendURLcitation)
+        ]).then(function ([frontend, backend]) {
             view.setResult(`
                 <div class="tei_body">
                     <h1>About Edirom-Online</h1>
@@ -98,7 +106,31 @@ Ext.define('EdiromOnline.controller.window.about.AboutWindow', {
                     ${frontend}
                     ${backend}
                 </div>`);
-        });
+        }).catch(function (error) {
+            console.error('Error fetching CITATION.cff files:', error);
+            view.setResult(`
+                <div class="tei_body">
+                    <h1>About Edirom-Online</h1>
+                    <section class="teidiv0">
+                        <p>
+                            Edirom-Online is a web-based platform for the collaborative editing of complex scholarly digital editions.
+                            It is based on the TEI XML standard and provides a rich set of tools for the collaborative editing of texts, images, and other media.
+                            Edirom-Online is developed by the Edirom Project.
+                        </p>
+                        <p>
+                            The software consists of two main modules: the frontend and the backend.
+                            Information about the parts of the software can be found below.
+                        </p>
+                    </section>
+                    <section class="teidiv0">
+                        <p>Error fetching content from CITATION.cff files.</p>
+                        <p>URL of backend CITATION.cff file: ${backendURLcitation}</p>
+                        <p>URL of frontend CITATION.cff file: ${frontendURLcitation}</p>
+                        <p>When encountering this or other issues persistently, please create a report on <a href="https://github.com/Edirom/Edirom-Online/issues/new/choose">https://github.com/Edirom/Edirom-Online/issues/new/choose</a></p>
+                    </section>
+                </div>
+            `);
+        })
 
 
 
