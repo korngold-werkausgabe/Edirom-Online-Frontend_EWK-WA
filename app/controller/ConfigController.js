@@ -4,7 +4,6 @@ Ext.define('EdiromOnline.controller.ConfigController', {
     config: null,
 
     init: function () {
-        console.log('ConfigController initialized');
     },
 
     /**
@@ -50,8 +49,6 @@ Ext.define('EdiromOnline.controller.ConfigController', {
         me.config = {
             backendURL: '@backend.url@'
         };
-
-        console.info('Fallback configuration applied:', me.config);
 
         if (callback) {
             Ext.callback(callback, scope || me, [me.config]);
