@@ -11,30 +11,29 @@ Ext.define('EdiromOnline.controller.ConfigController', {
      * @param {Function} callback Callback function after successful loading
      * @param {Object} scope Scope for the callback
      */
-    loadConfig: function (callback, scope) {
-        var me = this;
-
-        Ext.Ajax.request({
-            url: 'config.json',
-            method: 'GET',
-            success: function (response) {
-                try {
-                    me.config = JSON.parse(response.responseText);
-                    console.info('config.json for backendURL loaded.');
-
-                    if (callback) {
-                        Ext.callback(callback, scope || me, [me.config]);
-                    }
-                } catch (e) {
-                    console.error('Failed to parse config.json:', e.message);
-                    me.loadDefaultConfig(callback, scope);
+    async loadConfig(callback, scope) {
+        try {
+            const response = await fetch('config.json', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-            },
-            failure: function (response) {
-                console.info('No config.json provided: Using default value for backendURL.');
-                me.loadDefaultConfig(callback, scope);
+            });
+
+            if (!response.ok) {
+                throw new Error(`Status: ${response.status}`);
             }
-        });
+
+            this.config = await response.json();
+            console.info('config.json for backendURL loaded.');
+
+            if (callback) {
+                callback.call(scope || this, this.config);
+            }
+        } catch (e) {
+            console.log('Could not load a custom config.json:', e.message, '– Using default configuration.');
+            this.loadDefaultConfig(callback, scope);
+        }
     },
 
     /**
