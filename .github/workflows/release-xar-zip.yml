@@ -1,0 +1,144 @@
+name: Release Edirom Online Frontend
+
+on:
+    workflow_dispatch:
+        inputs:
+            build_sha:
+                description: "Git SHA of the build to release (leave empty for latest)"
+                required: false
+                type: string
+    workflow_run:
+        workflows: ["Build Edirom Online Frontend"]
+        types:
+            - completed
+        branches:
+            - dev-ewk
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+        steps:
+            - name: Determine build SHA
+              id: build_sha
+              run: |
+                  if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
+                    echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
+                  elif [ "${{ github.event_name }}" == "workflow_run" ]; then
+                    echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+                  else
+                    echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Download XAR artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: eof-ewk-xar-${{ steps.build_sha.outputs.sha }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  run-id: ${{ github.event.workflow_run.id || github.run_id }}
+
+            - name: Download build folder artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: eof-ewk-build-${{ steps.build_sha.outputs.sha }}
+                  path: eof-ewk-build
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  run-id: ${{ github.event.workflow_run.id || github.run_id }}
+
+            - name: Rename XAR file
+              run: |
+                  mv Edirom-Online-Frontend*.xar eof-ewk-latest.xar
+
+            - name: Archive build folder
+              run: |
+                  tar -czf eof-ewk-build.tar.gz eof-ewk-build
+
+            - name: Create Release if not exists
+              id: create_release
+              uses: actions/github-script@v6
+              with:
+                  script: |
+                      let release;
+                      try {
+                        release = await github.rest.repos.getReleaseByTag({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          tag: 'latest'
+                        });
+                      } catch (error) {
+                        if (error.status === 404) {
+                          release = await github.rest.repos.createRelease({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            tag_name: 'latest',
+                            name: 'Latest Release',
+                            draft: false,
+                            prerelease: false
+                          });
+                          console.log('Release created with tag "latest".');
+                        } else {
+                          throw error;
+                        }
+                      }
+                      core.setOutput('release_id', release.data.id);
+                      core.setOutput('upload_url', release.data.upload_url);
+
+            - name: Get Release by Tag
+              id: get_release
+              uses: actions/github-script@v6
+              with:
+                  script: |
+                      const release = await github.rest.repos.getReleaseByTag({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        tag: 'latest'
+                      });
+                      if (!release.data || !release.data.id) {
+                        throw new Error('Release with tag "latest" not found!');
+                      }
+                      core.setOutput('upload_url', release.data.upload_url);
+                      core.setOutput('release_id', release.data.id);
+
+            - name: Delete old assets if exist
+              uses: actions/github-script@v6
+              env:
+                  RELEASE_ID: ${{ steps.get_release.outputs.release_id }}
+              with:
+                  script: |
+                      const release_id = process.env.RELEASE_ID;
+                      const asset_names = ['eof-ewk-latest.xar', 'eof-ewk-build.tar.gz'];
+                      const { data: assets } = await github.rest.repos.listReleaseAssets({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        release_id: release_id
+                      });
+                      for (const asset of assets) {
+                        if (asset_names.includes(asset.name)) {
+                          await github.rest.repos.deleteReleaseAsset({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            asset_id: asset.id
+                          });
+                          console.log(`Deleted old asset: ${asset.name}`);
+                        }
+                      }
+
+            - name: Upload XAR to Release
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.get_release.outputs.upload_url }}
+                  asset_path: ./eof-ewk-latest.xar
+                  asset_name: eof-ewk-latest.xar
+                  asset_content_type: application/octet-stream
+
+            - name: Upload build folder to Release
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.get_release.outputs.upload_url }}
+                  asset_path: ./eof-ewk-build.tar.gz
+                  asset_name: eof-ewk-build.tar.gz
+                  asset_content_type: application/gzip
