@@ -34,6 +34,9 @@ Ext.define('EdiromOnline.view.window.image.VerovioImage', {
 	setIFrameContent: function (uri, edition) {
 		var me = this;
 
+		var configController = me.getApplication().getController('ConfigController');
+		var backendURL = configController && configController.hasConfig('backendURL') ? configController.getConfig('backendURL') : '@backend.url@';
+
 		var html = `<html>
         		<head>
 					<title>Verovio</title>
@@ -94,7 +97,7 @@ Ext.define('EdiromOnline.view.window.image.VerovioImage', {
 						var uri = "${uri}";
 						var edition = "${edition}";
 						var movementId = "";
-						var appBasePath = "@backend.url@";
+						var appBasePath = "${backendURL}";
 					</script>
 					<script
 						src="resources/js/verovio-view.js"></script>
