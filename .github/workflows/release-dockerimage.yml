@@ -1,173 +1,179 @@
 name: Release Docker Image
 
 on:
-    workflow_dispatch:
-        inputs:
-            build_sha:
-                description: "Git SHA of the build to release (leave empty for latest)"
-                required: false
-                type: string
-    workflow_run:
-        workflows: ["Build Docker Image"]
-        types:
-            - completed
-        branches:
-            - dev-ewk
+  workflow_dispatch:
+    inputs:
+      build_sha:
+        description: "Git SHA of the build to release (leave empty for latest)"
+        required: false
+        type: string
+  workflow_run:
+    workflows: ["Build Docker Image"]
+    types:
+      - completed
+    branches:
+      - dev-ewk
 
 env:
-    DOCKER_IMAGE: edirom/online-frontend-ewk
-    GHCR_IMAGE: ghcr.io/${{ github.repository }}/edirom-online-frontend
+  DOCKER_IMAGE: edirom/online-frontend-ewk
+  GHCR_IMAGE: ghcr.io/${{ github.repository }}/edirom-online-frontend
 
 jobs:
-    release:
-        runs-on: ubuntu-latest
-        if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-        permissions:
-            contents: read
-            packages: write
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Determine build SHA
+        id: build_sha
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
+            echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
+            echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
 
-            - name: Determine build SHA
-              id: build_sha
-              run: |
-                  if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
-                    echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-                  elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-                    echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
-                  else
-                    echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
-                  fi
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-${{ steps.build_sha.outputs.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id || github.run_id }}
 
-            - name: Download Docker image artifact
-              uses: actions/download-artifact@v4
-              with:
-                  name: docker-image-${{ steps.build_sha.outputs.sha }}
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  run-id: ${{ github.event.workflow_run.id || github.run_id }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+      - name: Load Docker image
+        id: load_image
+        run: |
+          docker load --input docker-image.tar
+          # Get the actual image name and tag from the loaded image
+          LOADED_IMAGE=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep -v REPOSITORY | head -1)
+          echo "loaded_image=$LOADED_IMAGE" >> $GITHUB_OUTPUT
+          echo "Loaded image: $LOADED_IMAGE"
+          docker image ls -a
 
-            - name: Load Docker image
-              run: |
-                  docker load --input docker-image.tar
-                  docker image ls -a
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-            - name: Log in to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: ${{ secrets.DOCKERHUB_USERNAME }}
-                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Log in to GitHub Container Registry
-              uses: docker/login-action@v3
-              with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata for Docker Hub
+        id: meta_dockerhub
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-            - name: Extract metadata for Docker Hub
-              id: meta_dockerhub
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ env.DOCKER_IMAGE }}
-                  tags: |
-                      type=ref,event=branch
-                      type=sha,prefix={{branch}}-
-                      type=raw,value=latest,enable={{is_default_branch}}
+      - name: Extract metadata for GHCR
+        id: meta_ghcr
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.GHCR_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-            - name: Extract metadata for GHCR
-              id: meta_ghcr
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ env.GHCR_IMAGE }}
-                  tags: |
-                      type=ref,event=branch
-                      type=sha,prefix={{branch}}-
-                      type=raw,value=latest,enable={{is_default_branch}}
+      - name: Tag and push to Docker Hub
+        run: |
+          SOURCE_IMAGE="${{ steps.load_image.outputs.loaded_image }}"
+          
+          # Tag for Docker Hub
+          echo "${{ steps.meta_dockerhub.outputs.tags }}" | while read tag; do
+            if [ -n "$tag" ]; then
+              echo "Tagging and pushing: $tag"
+              docker tag "$SOURCE_IMAGE" "$tag"
+              docker push "$tag"
+            fi
+          done
 
-            - name: Tag and push to Docker Hub
-              run: |
-                  SOURCE_IMAGE="edirom/online-frontend-ewk:${{ steps.build_sha.outputs.sha }}"
+      - name: Tag and push to GitHub Container Registry
+        run: |
+          SOURCE_IMAGE="${{ steps.load_image.outputs.loaded_image }}"
+          
+          # Tag for GHCR
+          echo "${{ steps.meta_ghcr.outputs.tags }}" | while read tag; do
+            if [ -n "$tag" ]; then
+              echo "Tagging and pushing: $tag"
+              docker tag "$SOURCE_IMAGE" "$tag"
+              docker push "$tag"
+            fi
+          done
 
-                  # Tag for Docker Hub
-                  echo "${{ steps.meta_dockerhub.outputs.tags }}" | while read tag; do
-                    echo "Tagging and pushing: $tag"
-                    docker tag "$SOURCE_IMAGE" "$tag"
-                    docker push "$tag"
-                  done
+      - name: Generate deployment info
+        run: |
+          cat > deployment-info.md << EOF
+          # Docker Image Deployment Info
 
-            - name: Tag and push to GitHub Container Registry
-              run: |
-                  SOURCE_IMAGE="edirom/online-frontend-ewk:${{ steps.build_sha.outputs.sha }}"
+          ## Available on Docker Hub
+          \`\`\`
+          ${{ steps.meta_dockerhub.outputs.tags }}
+          \`\`\`
 
-                  # Tag for GHCR
-                  echo "${{ steps.meta_ghcr.outputs.tags }}" | while read tag; do
-                    echo "Tagging and pushing: $tag"
-                    docker tag "$SOURCE_IMAGE" "$tag"
-                    docker push "$tag"
-                  done
+          ## Available on GitHub Container Registry
+          \`\`\`
+          ${{ steps.meta_ghcr.outputs.tags }}
+          \`\`\`
 
-            - name: Generate deployment info
-              run: |
-                  cat > deployment-info.md << EOF
-                  # Docker Image Deployment Info
+          ## Pull Commands
 
-                  ## Available on Docker Hub
-                  \`\`\`
-                  ${{ steps.meta_dockerhub.outputs.tags }}
-                  \`\`\`
+          ### From Docker Hub
+          \`\`\`bash
+          docker pull ${{ env.DOCKER_IMAGE }}:latest
+          \`\`\`
 
-                  ## Available on GitHub Container Registry
-                  \`\`\`
-                  ${{ steps.meta_ghcr.outputs.tags }}
-                  \`\`\`
+          ### From GitHub Container Registry
+          \`\`\`bash
+          docker pull ${{ env.GHCR_IMAGE }}:latest
+          \`\`\`
 
-                  ## Pull Commands
+          ## Run Command
+          \`\`\`bash
+          docker run -d \\
+            --name edirom-online-frontend \\
+            -p 8080:80 \\
+            -v \$(pwd)/config.json:/usr/share/nginx/html/config.json:ro \\
+            ${{ env.DOCKER_IMAGE }}:latest
+          \`\`\`
 
-                  ### From Docker Hub
-                  \`\`\`bash
-                  docker pull ${{ env.DOCKER_IMAGE }}:latest
-                  \`\`\`
+          ## Docker Compose
+          \`\`\`yaml
+          version: '3.8'
+          services:
+            edirom-frontend:
+              image: ${{ env.DOCKER_IMAGE }}:latest
+              ports:
+                - "8080:80"
+              volumes:
+                - ./config.json:/usr/share/nginx/html/config.json:ro
+              restart: unless-stopped
+          \`\`\`
 
-                  ### From GitHub Container Registry
-                  \`\`\`bash
-                  docker pull ${{ env.GHCR_IMAGE }}:latest
-                  \`\`\`
+          ## Simple Health Check
+          \`\`\`bash
+          curl -f http://localhost:8080/ || echo "Container not responding"
+          \`\`\`
+          EOF
 
-                  ## Run Command
-                  \`\`\`bash
-                  docker run -d \\
-                    --name edirom-online-frontend \\
-                    -p 8080:80 \\
-                    -v \$(pwd)/config.json:/usr/share/nginx/html/config.json:ro \\
-                    ${{ env.DOCKER_IMAGE }}:latest
-                  \`\`\`
-
-                  ## Docker Compose
-                  \`\`\`yaml
-                  version: '3.8'
-                  services:
-                    edirom-frontend:
-                      image: ${{ env.DOCKER_IMAGE }}:latest
-                      ports:
-                        - "8080:80"
-                      volumes:
-                        - ./config.json:/usr/share/nginx/html/config.json:ro
-                      restart: unless-stopped
-                  \`\`\`
-
-                  ## Health Check
-                  \`\`\`bash
-                  curl http://localhost:8080/health
-                  \`\`\`
-                  EOF
-
-            - name: Upload deployment info
-              uses: actions/upload-artifact@v4
-              with:
-                  name: deployment-info-${{ steps.build_sha.outputs.sha }}
-                  path: deployment-info.md
-                  retention-days: 90
+      - name: Upload deployment info
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-info-${{ steps.build_sha.outputs.sha }}
+          path: deployment-info.md
+          retention-days: 90
