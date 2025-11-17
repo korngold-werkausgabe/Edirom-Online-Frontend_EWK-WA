@@ -1,0 +1,49 @@
+name: build-eof-frontend-xar
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - dev-ewk
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jre git
+
+      - name: Copy Sencha CMD Dockerfile
+        run: |
+          git clone --depth 1 https://github.com/bwbohl/sencha-cmd.git /tmp/sencha-cmd
+          cp /tmp/sencha-cmd/Dockerfile ${{ github.workspace }}/Dockerfile
+
+      - name: Build Docker Image
+        run: |
+          docker build -f ${{ github.workspace }}/Dockerfile -t edirom-online-build .
+        working-directory: ${{ github.workspace }}
+
+      - name: Run Build in Container
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/app -w /app edirom-online-build "./build.sh production"
+
+      - name: Upload XAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eof-ewk-xar-${{ github.sha }}
+          path: build-xar/*.xar
+          retention-days: 30
+
+      - name: Upload build folder artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eof-ewk-build-${{ github.sha }}
+          path: build
+          retention-days: 30
