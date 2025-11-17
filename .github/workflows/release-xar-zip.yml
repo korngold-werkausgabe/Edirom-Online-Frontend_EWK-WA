@@ -1,4 +1,4 @@
-name: Release Edirom Online Frontend
+name: release-eof-frontend-xar
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
         required: false
         type: string
   workflow_run:
-    workflows: ["Build Edirom Online Frontend"]
+    workflows: ["build-eof-frontend-xar"]
     types:
       - completed
     branches:

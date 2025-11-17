@@ -1,4 +1,4 @@
-name: Build Edirom Online Frontend
+name: build-eof-frontend-xar
 
 on:
   workflow_dispatch:
