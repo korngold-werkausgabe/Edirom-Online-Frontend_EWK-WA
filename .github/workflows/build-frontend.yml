@@ -2,9 +2,6 @@ name: build-eof-frontend-xar
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - dev-ewk
   pull_request:
     branches:
       - dev-ewk
