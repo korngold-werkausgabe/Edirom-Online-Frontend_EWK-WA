@@ -11,8 +11,6 @@ on:
         description: "Run ID where the artifact was created"
         required: false
         type: string
-  repository_dispatch:
-    types: [release-eof]
 
 jobs:
   release:
@@ -21,10 +19,8 @@ jobs:
       - name: Determine build SHA
         id: build_sha
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
+          if [ -n "${{ inputs.build_sha }}" ]; then
             echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
-            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
           fi
@@ -32,10 +28,8 @@ jobs:
       - name: Determine run ID
         id: run_info
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.run_id }}" ]; then
+          if [ -n "${{ inputs.run_id }}" ]; then
             echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
-            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
           else
             echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
