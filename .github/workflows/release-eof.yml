@@ -4,30 +4,40 @@ on:
   workflow_dispatch:
     inputs:
       build_sha:
-        description: "Git SHA of the build to release (leave empty for latest)"
+        description: "Git SHA of the build to release"
         required: false
         type: string
-  workflow_run:
-    workflows: ["build-eof"]
-    types:
-      - completed
-    branches:
-      - dev-ewk
+      run_id:
+        description: "Run ID where the artifact was created"
+        required: false
+        type: string
+  repository_dispatch:
+    types: [release-eof]
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Determine build SHA
         id: build_sha
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
             echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine run ID
+        id: run_info
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.run_id }}" ]; then
+            echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
+          else
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Download XAR artifact
@@ -35,7 +45,7 @@ jobs:
         with:
           name: eof-ewk-xar-${{ steps.build_sha.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.run_info.outputs.run_id }}
 
       - name: Download build folder artifact
         uses: actions/download-artifact@v4
@@ -43,7 +53,7 @@ jobs:
           name: eof-ewk-build-${{ steps.build_sha.outputs.sha }}
           path: eof-ewk-build
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.run_info.outputs.run_id }}
 
       - name: Rename XAR file
         run: |
@@ -53,8 +63,8 @@ jobs:
         run: |
           tar -czf eof-ewk-build.tar.gz eof-ewk-build
 
-      - name: Create Release if not exists
-        id: create_release
+      - name: Get or Create Release
+        id: get_release
         uses: actions/github-script@v6
         with:
           script: |
@@ -83,23 +93,7 @@ jobs:
             core.setOutput('release_id', release.data.id);
             core.setOutput('upload_url', release.data.upload_url);
 
-      - name: Get Release by Tag
-        id: get_release
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const release = await github.rest.repos.getReleaseByTag({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag: 'latest'
-            });
-            if (!release.data || !release.data.id) {
-              throw new Error('Release with tag "latest" not found!');
-            }
-            core.setOutput('upload_url', release.data.upload_url);
-            core.setOutput('release_id', release.data.id);
-
-      - name: Delete old assets if exist
+      - name: Delete old assets if existif exist
         uses: actions/github-script@v6
         env:
           RELEASE_ID: ${{ steps.get_release.outputs.release_id }}

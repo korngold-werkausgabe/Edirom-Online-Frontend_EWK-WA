@@ -4,30 +4,40 @@ on:
   workflow_dispatch:
     inputs:
       build_sha:
-        description: "Git SHA of the build to use (leave empty for latest)"
+        description: "Git SHA of the build to use"
         required: false
         type: string
-  workflow_run:
-    workflows: ["build-eof"]
-    types:
-      - completed
-    branches:
-      - dev-ewk
+      run_id:
+        description: "Run ID where the artifact was created"
+        required: false
+        type: string
+  repository_dispatch:
+    types: [build-completed]
 
 jobs:
   docker-build:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Determine build SHA
         id: build_sha
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
             echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine run ID
+        id: run_info
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.run_id }}" ]; then
+            echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
+          else
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Create workspace directory
@@ -39,7 +49,7 @@ jobs:
           name: eof-ewk-build-${{ steps.build_sha.outputs.sha }}
           path: /tmp/docker-context/build
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.run_info.outputs.run_id }}
 
       - name: Create nginx Dockerfile
         run: |
@@ -93,3 +103,13 @@ jobs:
           name: docker-image-${{ steps.build_sha.outputs.sha }}
           path: /tmp/docker-image.tar
           retention-days: 7
+
+      - name: Trigger release-docker-image
+        if: success()
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d "{\"event_type\":\"release-docker\",\"client_payload\":{\"sha\":\"${{ steps.build_sha.outputs.sha }}\",\"run_id\":\"${{ github.run_id }}\",\"workflow\":\"build-docker-image\"}}"

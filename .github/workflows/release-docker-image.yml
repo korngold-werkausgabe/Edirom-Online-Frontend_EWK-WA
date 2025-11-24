@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       build_sha:
-        description: "Git SHA of the build to release (leave empty for latest)"
+        description: "Git SHA of the build to release"
         required: false
         type: string
-  workflow_run:
-    workflows: ["build-docker-image"]
-    types:
-      - completed
-    branches:
-      - dev-ewk
+      run_id:
+        description: "Run ID where the artifact was created"
+        required: false
+        type: string
+  repository_dispatch:
+    types: [release-docker]
 
 env:
   DOCKER_IMAGE: edirom/online-frontend-ewk
@@ -21,7 +21,6 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     permissions:
       contents: read
       packages: write
@@ -31,10 +30,21 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
             echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine run ID
+        id: run_info
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.run_id }}" ]; then
+            echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
+          else
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Download Docker image artifact
@@ -42,7 +52,7 @@ jobs:
         with:
           name: docker-image-${{ steps.build_sha.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.run_info.outputs.run_id }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
