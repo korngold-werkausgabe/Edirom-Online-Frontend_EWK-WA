@@ -1,4 +1,4 @@
-name: release-eof-frontend-xar
+name: release-eof-xar-build
 
 on:
   workflow_dispatch:
@@ -7,43 +7,54 @@ on:
         description: "Git SHA of the build to release (leave empty for latest)"
         required: false
         type: string
-  workflow_run:
-    workflows: ["build-eof-frontend-xar"]
+      run_id:
+        description: "Run ID of the build workflow (leave empty for current run)"
+        required: false
+        type: string
+  repository_dispatch:
     types:
-      - completed
-    branches:
-      - dev-ewk
+      - xar-build-ready-for-release
 
 jobs:
-  release:
+  release-xar:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - name: Determine build SHA
-        id: build_sha
+      - name: Determine build SHA and run ID
+        id: build_info
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
-            echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ -n "${{ inputs.build_sha }}" ]; then
+              echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
+            else
+              echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            fi
+            if [ -n "${{ inputs.run_id }}" ]; then
+              echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+            else
+              echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+            fi
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Download XAR artifact
         uses: actions/download-artifact@v4
         with:
-          name: eof-ewk-xar-${{ steps.build_sha.outputs.sha }}
+          name: eof-ewk-xar-${{ steps.build_info.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.build_info.outputs.run_id }}
 
       - name: Download build folder artifact
         uses: actions/download-artifact@v4
         with:
-          name: eof-ewk-build-${{ steps.build_sha.outputs.sha }}
+          name: eof-ewk-build-${{ steps.build_info.outputs.sha }}
           path: eof-ewk-build
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.build_info.outputs.run_id }}
 
       - name: Rename XAR file
         run: |
