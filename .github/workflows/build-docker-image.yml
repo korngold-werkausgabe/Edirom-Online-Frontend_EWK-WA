@@ -7,27 +7,38 @@ on:
         description: "Git SHA of the build to use (leave empty for latest)"
         required: false
         type: string
-  workflow_run:
-    workflows: ["build-eof-frontend-xar"]
+      run_id:
+        description: "Run ID of the build workflow (leave empty for current run)"
+        required: false
+        type: string
+  repository_dispatch:
     types:
-      - completed
-    branches:
-      - dev-ewk
+      - xar-build-complete
 
 jobs:
   docker-build:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
-      - name: Determine build SHA
-        id: build_sha
+      - name: Determine build SHA and run ID
+        id: build_info
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
-            echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ -n "${{ inputs.build_sha }}" ]; then
+              echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
+            else
+              echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            fi
+            if [ -n "${{ inputs.run_id }}" ]; then
+              echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+            else
+              echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+            fi
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Create workspace directory
@@ -36,10 +47,10 @@ jobs:
       - name: Download build folder artifact
         uses: actions/download-artifact@v4
         with:
-          name: eof-ewk-build-${{ steps.build_sha.outputs.sha }}
+          name: eof-ewk-build-${{ steps.build_info.outputs.sha }}
           path: /tmp/docker-context/build
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.build_info.outputs.run_id }}
 
       - name: Create nginx Dockerfile
         run: |
@@ -78,18 +89,32 @@ jobs:
           }
           EOF
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build Docker image (without push)
         uses: docker/build-push-action@v5
         with:
           context: /tmp/docker-context
           push: false
-          tags: edirom/online-frontend-ewk:${{ steps.build_sha.outputs.sha }}
-          platforms: linux/amd64,linux/arm64
-          outputs: type=oci,dest=/tmp/docker-image.tar
+          tags: korngold-werkausgabe/edirom-online-frontend-ewk:${{ steps.build_info.outputs.sha }}
+          platforms: linux/amd64  # ← NUR EINE PLATFORM für Artifact
+          outputs: type=docker,dest=/tmp/docker-image.tar  # ← type=docker statt oci
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: docker-image-${{ steps.build_sha.outputs.sha }}
+          name: docker-image-${{ steps.build_info.outputs.sha }}
           path: /tmp/docker-image.tar
           retention-days: 7
+
+      - name: Trigger Docker release workflow
+        if: success()
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: docker-build-ready-for-release
+          client-payload: '{"sha": "${{ steps.build_info.outputs.sha }}", "run_id": "${{ github.run_id }}"}'

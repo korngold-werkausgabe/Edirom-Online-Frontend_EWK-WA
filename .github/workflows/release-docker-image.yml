@@ -4,58 +4,72 @@ on:
   workflow_dispatch:
     inputs:
       build_sha:
-        description: "Git SHA of the build to release (leave empty for latest)"
+        description: "Git SHA of the Docker image to release (leave empty for latest)"
         required: false
         type: string
-  workflow_run:
-    workflows: ["build-docker-image"]
+      run_id:
+        description: "Run ID of the Docker build workflow (leave empty for current run)"
+        required: false
+        type: string
+  repository_dispatch:
     types:
-      - completed
-    branches:
-      - dev-ewk
+      - docker-build-ready-for-release
 
 env:
-  DOCKER_IMAGE: edirom/online-frontend-ewk
-  GHCR_IMAGE: ghcr.io/${{ github.repository }}/edirom-online-frontend
+  DOCKER_IMAGE: korngold-werkausgabe/edirom-online-frontend-ewk
+  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/edirom-online-frontend-ewk
 
 jobs:
-  release:
+  release-docker:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    permissions:
-      contents: read
-      packages: write
     steps:
-      - name: Determine build SHA
-        id: build_sha
+      - name: Determine build SHA and run ID
+        id: build_info
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.build_sha }}" ]; then
-            echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ -n "${{ inputs.build_sha }}" ]; then
+              echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
+            else
+              echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            fi
+            if [ -n "${{ inputs.run_id }}" ]; then
+              echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+            else
+              echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+            fi
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: docker-image-${{ steps.build_sha.outputs.sha }}
+          name: docker-image-${{ steps.build_info.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || github.run_id }}
+          run-id: ${{ steps.build_info.outputs.run_id }}  # ← KORRIGIERT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Load Docker image
-        id: load_image
         run: |
           docker load --input docker-image.tar
-          # Get the actual image name and tag from the loaded image
-          LOADED_IMAGE=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep -v REPOSITORY | head -1)
-          echo "loaded_image=$LOADED_IMAGE" >> $GITHUB_OUTPUT
-          echo "Loaded image: $LOADED_IMAGE"
           docker image ls -a
+
+      - name: Verify loaded image
+        run: |
+          SOURCE_IMAGE="korngold-werkausgabe/edirom-online-frontend-ewk:${{ steps.build_info.outputs.sha }}"
+          if ! docker image inspect "$SOURCE_IMAGE" > /dev/null 2>&1; then
+            echo "Error: Expected image $SOURCE_IMAGE not found after loading!"
+            echo "Available images:"
+            docker images
+            exit 1
+          fi
+          echo "Successfully verified image: $SOURCE_IMAGE"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -174,6 +188,6 @@ jobs:
       - name: Upload deployment info
         uses: actions/upload-artifact@v4
         with:
-          name: deployment-info-${{ steps.build_sha.outputs.sha }}
+          name: deployment-info-${{ steps.build_info.outputs.sha }}
           path: deployment-info.md
           retention-days: 90
