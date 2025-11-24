@@ -1,4 +1,4 @@
-name: build-eof-xar-build
+name: build-eof-frontend-xar
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       - dev-ewk
 
 jobs:
-  build-xar-build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -45,21 +45,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: eof-ewk-build-${{ github.sha }}
-          path: build/
-          retention-days: 7
-
-      - name: Trigger Docker build workflow
-        if: success()
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: xar-build-complete
-          client-payload: '{"sha": "${{ github.sha }}", "run_id": "${{ github.run_id }}"}'
-
-      - name: Trigger XAR release workflow
-        if: success()
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: xar-build-ready-for-release
-          client-payload: '{"sha": "${{ github.sha }}", "run_id": "${{ github.run_id }}"}'
+          path: build
+          retention-days: 30
