@@ -8,7 +8,7 @@ on:
         required: false
         type: string
   workflow_run:
-    workflows: ["build-eof-frontend-xar"]
+    workflows: ["build-eof"]
     types:
       - completed
     branches:

@@ -1,4 +1,4 @@
-name: build-eof-frontend-xar
+name: build-eof
 
 on:
   workflow_dispatch:
