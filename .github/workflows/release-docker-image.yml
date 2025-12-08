@@ -41,24 +41,31 @@ jobs:
             echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Download Docker image artifact
+      - name: Download Docker images artifact
         uses: actions/download-artifact@v4
         with:
-          name: docker-image-${{ steps.build_sha.outputs.sha }}
+          name: docker-images-${{ steps.build_sha.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ steps.run_info.outputs.run_id }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Load Docker image
+      - name: Load Docker images
         id: load_image
         run: |
-          docker load --input docker-image.tar
-          # Get the actual image name and tag from the loaded image
-          LOADED_IMAGE=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep -v REPOSITORY | head -1)
-          echo "loaded_image=$LOADED_IMAGE" >> $GITHUB_OUTPUT
-          echo "Loaded image: $LOADED_IMAGE"
+          # Load both platform images
+          docker load --input docker-image-amd64.tar
+          docker load --input docker-image-arm64.tar
+          
+          # Get the image names
+          AMD64_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "amd64" | head -1)
+          ARM64_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "arm64" | head -1)
+          
+          echo "amd64_image=$AMD64_IMAGE" >> $GITHUB_OUTPUT
+          echo "arm64_image=$ARM64_IMAGE" >> $GITHUB_OUTPUT
+          echo "Loaded AMD64: $AMD64_IMAGE"
+          echo "Loaded ARM64: $ARM64_IMAGE"
           docker image ls -a
 
       - name: Log in to Docker Hub
@@ -94,29 +101,55 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Tag and push to Docker Hub
+      - name: Create and push multi-platform manifest to Docker Hub
         run: |
-          SOURCE_IMAGE="${{ steps.load_image.outputs.loaded_image }}"
+          AMD64_IMAGE="${{ steps.load_image.outputs.amd64_image }}"
+          ARM64_IMAGE="${{ steps.load_image.outputs.arm64_image }}"
           
-          # Tag for Docker Hub
+          # Tag and push individual platform images
           echo "${{ steps.meta_dockerhub.outputs.tags }}" | while read tag; do
             if [ -n "$tag" ]; then
-              echo "Tagging and pushing: $tag"
-              docker tag "$SOURCE_IMAGE" "$tag"
-              docker push "$tag"
+              echo "Processing tag: $tag"
+              
+              # Tag and push amd64
+              docker tag "$AMD64_IMAGE" "${tag}-amd64"
+              docker push "${tag}-amd64"
+              
+              # Tag and push arm64
+              docker tag "$ARM64_IMAGE" "${tag}-arm64"
+              docker push "${tag}-arm64"
+              
+              # Create and push manifest
+              docker manifest create "$tag" \
+                --amend "${tag}-amd64" \
+                --amend "${tag}-arm64"
+              docker manifest push "$tag"
             fi
           done
 
-      - name: Tag and push to GitHub Container Registry
+      - name: Create and push multi-platform manifest to GitHub Container Registry
         run: |
-          SOURCE_IMAGE="${{ steps.load_image.outputs.loaded_image }}"
+          AMD64_IMAGE="${{ steps.load_image.outputs.amd64_image }}"
+          ARM64_IMAGE="${{ steps.load_image.outputs.arm64_image }}"
           
-          # Tag for GHCR
+          # Tag and push individual platform images
           echo "${{ steps.meta_ghcr.outputs.tags }}" | while read tag; do
             if [ -n "$tag" ]; then
-              echo "Tagging and pushing: $tag"
-              docker tag "$SOURCE_IMAGE" "$tag"
-              docker push "$tag"
+              echo "Processing tag: $tag"
+              
+              # Tag and push amd64
+              docker tag "$AMD64_IMAGE" "${tag}-amd64"
+              docker push "${tag}-amd64"
+              
+              # Tag and push arm64
+              docker tag "$ARM64_IMAGE" "${tag}-arm64"
+              docker push "${tag}-arm64"
+              
+              # Create and push manifest
+              docker manifest create "$tag" \
+                --amend "${tag}-amd64" \
+                --amend "${tag}-arm64"
+              docker manifest push "$tag"
             fi
           done
 
