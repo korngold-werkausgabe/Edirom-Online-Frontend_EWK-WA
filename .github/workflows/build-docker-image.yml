@@ -119,6 +119,7 @@ jobs:
         run: |
           # Trigger release-docker-image workflow on same branch
           gh workflow run release-docker-image.yml \
+            --repo ${{ github.repository }} \
             --ref ${{ github.ref_name }} \
             -f build_sha=${{ steps.build_sha.outputs.sha }} \
             -f run_id=${{ github.run_id }}

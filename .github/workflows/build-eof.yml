@@ -59,12 +59,14 @@ jobs:
         run: |
           # Trigger build-docker-image workflow on same branch
           gh workflow run build-docker-image.yml \
+            --repo ${{ github.repository }} \
             --ref ${{ github.ref_name }} \
             -f build_sha=${{ github.sha }} \
             -f run_id=${{ github.run_id }}
           
           # Trigger release-eof workflow on same branch
           gh workflow run release-eof.yml \
+            --repo ${{ github.repository }} \
             --ref ${{ github.ref_name }} \
             -f build_sha=${{ github.sha }} \
             -f run_id=${{ github.run_id }}
