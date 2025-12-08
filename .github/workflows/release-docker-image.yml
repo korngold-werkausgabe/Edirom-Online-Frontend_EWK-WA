@@ -4,72 +4,69 @@ on:
   workflow_dispatch:
     inputs:
       build_sha:
-        description: "Git SHA of the Docker image to release (leave empty for latest)"
+        description: "Git SHA of the build to release"
         required: false
         type: string
       run_id:
-        description: "Run ID of the Docker build workflow (leave empty for current run)"
+        description: "Run ID where the artifact was created"
         required: false
         type: string
-  repository_dispatch:
-    types:
-      - docker-build-ready-for-release
 
 env:
-  DOCKER_IMAGE: korngold-werkausgabe/edirom-online-frontend-ewk
-  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/edirom-online-frontend-ewk
+  DOCKER_IMAGE: edirom/online-frontend-ewk
+  GHCR_IMAGE: ghcr.io/${{ github.repository }}/edirom-online-frontend
 
 jobs:
-  release-docker:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: Determine build SHA and run ID
-        id: build_info
+      - name: Determine build SHA
+        id: build_sha
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            if [ -n "${{ inputs.build_sha }}" ]; then
-              echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
-            else
-              echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
-            fi
-            if [ -n "${{ inputs.run_id }}" ]; then
-              echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
-            else
-              echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
-            fi
-          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
-            echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
-            echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
+          if [ -n "${{ inputs.build_sha }}" ]; then
+            echo "sha=${{ inputs.build_sha }}" >> $GITHUB_OUTPUT
           else
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine run ID
+        id: run_info
+        run: |
+          if [ -n "${{ inputs.run_id }}" ]; then
+            echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+          else
             echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Download Docker image artifact
+      - name: Download Docker images artifact
         uses: actions/download-artifact@v4
         with:
-          name: docker-image-${{ steps.build_info.outputs.sha }}
+          name: docker-images-${{ steps.build_sha.outputs.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ steps.build_info.outputs.run_id }}  # ← KORRIGIERT
+          run-id: ${{ steps.run_info.outputs.run_id }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Load Docker image
+      - name: Load Docker images
+        id: load_image
         run: |
-          docker load --input docker-image.tar
+          # Load both platform images
+          docker load --input docker-image-amd64.tar
+          docker load --input docker-image-arm64.tar
+          
+          # Get the image names
+          AMD64_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "amd64" | head -1)
+          ARM64_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "arm64" | head -1)
+          
+          echo "amd64_image=$AMD64_IMAGE" >> $GITHUB_OUTPUT
+          echo "arm64_image=$ARM64_IMAGE" >> $GITHUB_OUTPUT
+          echo "Loaded AMD64: $AMD64_IMAGE"
+          echo "Loaded ARM64: $ARM64_IMAGE"
           docker image ls -a
-
-      - name: Verify loaded image
-        run: |
-          SOURCE_IMAGE="korngold-werkausgabe/edirom-online-frontend-ewk:${{ steps.build_info.outputs.sha }}"
-          if ! docker image inspect "$SOURCE_IMAGE" > /dev/null 2>&1; then
-            echo "Error: Expected image $SOURCE_IMAGE not found after loading!"
-            echo "Available images:"
-            docker images
-            exit 1
-          fi
-          echo "Successfully verified image: $SOURCE_IMAGE"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -104,29 +101,55 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Tag and push to Docker Hub
+      - name: Create and push multi-platform manifest to Docker Hub
         run: |
-          SOURCE_IMAGE="${{ steps.load_image.outputs.loaded_image }}"
+          AMD64_IMAGE="${{ steps.load_image.outputs.amd64_image }}"
+          ARM64_IMAGE="${{ steps.load_image.outputs.arm64_image }}"
           
-          # Tag for Docker Hub
+          # Tag and push individual platform images
           echo "${{ steps.meta_dockerhub.outputs.tags }}" | while read tag; do
             if [ -n "$tag" ]; then
-              echo "Tagging and pushing: $tag"
-              docker tag "$SOURCE_IMAGE" "$tag"
-              docker push "$tag"
+              echo "Processing tag: $tag"
+              
+              # Tag and push amd64
+              docker tag "$AMD64_IMAGE" "${tag}-amd64"
+              docker push "${tag}-amd64"
+              
+              # Tag and push arm64
+              docker tag "$ARM64_IMAGE" "${tag}-arm64"
+              docker push "${tag}-arm64"
+              
+              # Create and push manifest
+              docker manifest create "$tag" \
+                --amend "${tag}-amd64" \
+                --amend "${tag}-arm64"
+              docker manifest push "$tag"
             fi
           done
 
-      - name: Tag and push to GitHub Container Registry
+      - name: Create and push multi-platform manifest to GitHub Container Registry
         run: |
-          SOURCE_IMAGE="${{ steps.load_image.outputs.loaded_image }}"
+          AMD64_IMAGE="${{ steps.load_image.outputs.amd64_image }}"
+          ARM64_IMAGE="${{ steps.load_image.outputs.arm64_image }}"
           
-          # Tag for GHCR
+          # Tag and push individual platform images
           echo "${{ steps.meta_ghcr.outputs.tags }}" | while read tag; do
             if [ -n "$tag" ]; then
-              echo "Tagging and pushing: $tag"
-              docker tag "$SOURCE_IMAGE" "$tag"
-              docker push "$tag"
+              echo "Processing tag: $tag"
+              
+              # Tag and push amd64
+              docker tag "$AMD64_IMAGE" "${tag}-amd64"
+              docker push "${tag}-amd64"
+              
+              # Tag and push arm64
+              docker tag "$ARM64_IMAGE" "${tag}-arm64"
+              docker push "${tag}-arm64"
+              
+              # Create and push manifest
+              docker manifest create "$tag" \
+                --amend "${tag}-amd64" \
+                --amend "${tag}-arm64"
+              docker manifest push "$tag"
             fi
           done
 
@@ -188,6 +211,6 @@ jobs:
       - name: Upload deployment info
         uses: actions/upload-artifact@v4
         with:
-          name: deployment-info-${{ steps.build_info.outputs.sha }}
+          name: deployment-info-${{ steps.build_sha.outputs.sha }}
           path: deployment-info.md
           retention-days: 90

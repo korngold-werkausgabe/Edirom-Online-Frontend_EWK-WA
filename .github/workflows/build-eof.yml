@@ -1,14 +1,18 @@
-name: build-eof-xar-build
+name: build-eof
 
 on:
   workflow_dispatch:
   push:
     branches:
       - dev-ewk
+      - ftr/23-dockerimage-release
 
 jobs:
-  build-xar-build:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,21 +49,22 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: eof-ewk-build-${{ github.sha }}
-          path: build/
-          retention-days: 7
+          path: build
+          retention-days: 30
 
-      - name: Trigger Docker build workflow
+      - name: Trigger downstream workflows
         if: success()
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: xar-build-complete
-          client-payload: '{"sha": "${{ github.sha }}", "run_id": "${{ github.run_id }}"}'
-
-      - name: Trigger XAR release workflow
-        if: success()
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: xar-build-ready-for-release
-          client-payload: '{"sha": "${{ github.sha }}", "run_id": "${{ github.run_id }}"}'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          # Trigger build-docker-image workflow on same branch
+          gh workflow run build-docker-image.yml \
+            --ref ${{ github.ref_name }} \
+            -f build_sha=${{ github.sha }} \
+            -f run_id=${{ github.run_id }}
+          
+          # Trigger release-eof workflow on same branch
+          gh workflow run release-eof.yml \
+            --ref ${{ github.ref_name }} \
+            -f build_sha=${{ github.sha }} \
+            -f run_id=${{ github.run_id }}
