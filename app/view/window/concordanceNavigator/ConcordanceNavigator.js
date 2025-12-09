@@ -26,14 +26,6 @@ Ext.define('EdiromOnline.view.window.concordanceNavigator.ConcordanceNavigator',
     
     alias: 'widget.concordanceNavigator',
 
-    requires: [
-        'Ext.button.Button',
-        'Ext.container.Container',
-        'Ext.form.Label',
-        'Ext.form.field.Text',
-        'EdiromOnline.view.utils.EnhancedSlider'
-    ],
-
     stateful: false,
     isWindow: true,
     //closeAction: 'hide',
@@ -73,11 +65,10 @@ Ext.define('EdiromOnline.view.window.concordanceNavigator.ConcordanceNavigator',
 
         me.title = getLangString('view.window.concordanceNavigator.ConcordanceNavigator_Title');
 
-        me.showConnectionButtonLabel = getLangString('view.window.concordanceNavigator.ConcordanceNavigator_Show');
-
         let concordanceNavigatorJsElement = document.createElement("script");
         concordanceNavigatorJsElement.setAttribute("defer", "defer");
         concordanceNavigatorJsElement.setAttribute("src", "resources/web-components/edirom-concordance-navigator/concordanceNavigatorElement.js");
+        concordanceNavigatorJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(concordanceNavigatorJsElement);
 
 
