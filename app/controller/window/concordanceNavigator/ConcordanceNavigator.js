@@ -73,7 +73,6 @@ Ext.define('EdiromOnline.controller.window.concordanceNavigator.ConcordanceNavig
             }
         });
         me.ediromConcordanceNavigator.addEventListener('layout-change', function (e) {
-            console.log("updating layout!");
             win.updateLayout();
         });
     },
