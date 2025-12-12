@@ -39,18 +39,21 @@ Ext.define('EdiromOnline.controller.navigator.Navigator', {
     },
 
     updateNavigatorContent: function (workId) {
+        me = this;
 
         var editionId = this.application.activeEdition;
         var lang = window.getLanguage('application_language');
 
-        fetchNavigatorContent(workId, editionId, lang).then((navigatorContent) => {
-            console.log("Navigator content fetched:", navigatorContent);
+        this.fetchNavigatorContent(workId, editionId, lang, function (navigatorContent) {
+            console.log(me.ediromNavigator);
+            me.ediromNavigator.setAttribute('navigator-data', JSON.stringify(navigatorContent));
+        // continue processing navigatorContent here
         });
 
 
     },
 
-    fetchNavigatorContent: function (workId, editionId, lang) {
+    fetchNavigatorContent: function (workId, editionId, lang, onSuccess) {
         window.doAJAXRequest('data/xql/getNavigatorConfig.xql',
             'GET',
             {
@@ -59,14 +62,17 @@ Ext.define('EdiromOnline.controller.navigator.Navigator', {
                 lang: lang
             },
             Ext.bind(function (response) {
-            })
+                var data = response && response.responseText ? Ext.decode(response.responseText) : null;
+                if (Ext.isFunction(onSuccess)) onSuccess(data);
+            }, this)
         );
     },
 
 
     onNavigatorRendered: function (navigator) {
+        var me = this;
 
-        me.ediromConcordanceNavigator = document.querySelector(`#${win.id}-navigator`);
+        me.ediromNavigator = document.querySelector(`#${navigator.id}-navigator`);
 
         this.updateNavigatorContent(this.application.activeWork);
 
