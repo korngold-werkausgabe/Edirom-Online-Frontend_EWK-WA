@@ -28,8 +28,8 @@ Ext.define('EdiromOnline.controller.navigator.Navigator', {
 
         this.application.addListener('workSelected', this.onWorkSelected, this);
 
-        this.navigators = new Array();
-        this.navigatorContents = new Ext.util.MixedCollection();
+        // this.navigators = new Array();
+        // this.navigatorContents = new Ext.util.MixedCollection();
 
         this.control({
             'navigator': {
@@ -38,63 +38,44 @@ Ext.define('EdiromOnline.controller.navigator.Navigator', {
         });
     },
 
-    hasNavigatorContent: function(workId) {
-        return this.navigatorContents.containsKey(workId);
-    },
-
-    fetchNavigatorContent: function(workId) {
+    updateNavigatorContent: function (workId) {
 
         var editionId = this.application.activeEdition;
         var lang = window.getLanguage('application_language');
 
+        fetchNavigatorContent(workId, editionId, lang).then((navigatorContent) => {
+            console.log("Navigator content fetched:", navigatorContent);
+        });
+
+
+    },
+
+    fetchNavigatorContent: function (workId, editionId, lang) {
         window.doAJAXRequest('data/xql/getNavigatorConfig.xql',
-            'GET', 
+            'GET',
             {
                 editionId: editionId,
                 workId: workId,
                 lang: lang
             },
-            Ext.bind(function(response){
-                this.navigatorContents.add(workId, response.responseText);
-
-                Ext.Array.each(this.navigators, function(navigator) {
-                    navigator.body.update(this.getNavigatorContent(workId));
-                    navigator.setLoading(false);
-                }, this);
-            }, this)
+            Ext.bind(function (response) {
+            })
         );
     },
 
-    getNavigatorContent: function(workId) {
-        if(this.navigatorContents.containsKey(workId))
-            return this.navigatorContents.get(workId);
 
-        return null;
-    },
+    onNavigatorRendered: function (navigator) {
 
-    onNavigatorRendered: function(navigator) {
-        if(this.hasNavigatorContent(this.application.activeWork))
-            navigator.body.update(this.getNavigatorContent(this.application.activeWork));
-        else {
-            this.fetchNavigatorContent(this.application.activeWork);
-        }
+        me.ediromConcordanceNavigator = document.querySelector(`#${win.id}-navigator`);
 
-        this.navigators.push(navigator);
+        this.updateNavigatorContent(this.application.activeWork);
+
     },
 
     onWorkSelected: function(workId) {
 
-        if(this.hasNavigatorContent(workId)) {
-            Ext.Array.each(this.navigators, function(navigator) {
-                navigator.body.update(this.getNavigatorContent(workId));
-                navigator.setLoading(false);
-            }, this);
-        }else {
-            Ext.Array.each(this.navigators, function(navigator) {
-                navigator.setLoading(true);
-            });
-            this.fetchNavigatorContent(workId);
-        }
+        this.updateNavigatorContent(workId);
+
     }
 });
 

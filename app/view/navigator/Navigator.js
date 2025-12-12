@@ -39,8 +39,15 @@ Ext.define('EdiromOnline.view.navigator.Navigator', {
     initComponent: function () {
         var me = this;
 
+        let navigatorJsElement = document.createElement("script");
+        navigatorJsElement.setAttribute("defer", "defer");
+        navigatorJsElement.setAttribute("src", "resources/web-components/edirom-navigator/navigator.js");
+        navigatorJsElement.setAttribute("type", "module");
+        document.querySelector("head").appendChild(navigatorJsElement);
+
+        me.html = `<edirom-navigator id="${me.id}-navigator"></edirom-navigator>`;
+
         me.callParent();
-        me.userHeight = me.height;
     },
 
     afterRender: function() {
