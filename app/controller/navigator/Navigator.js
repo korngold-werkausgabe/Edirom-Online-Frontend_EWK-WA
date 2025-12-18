@@ -74,6 +74,12 @@ Ext.define('EdiromOnline.controller.navigator.Navigator', {
 
         this.updateNavigatorContent(this.application.activeWork);
 
+        me.ediromNavigator.addEventListener('load-link-request', function (e) {
+            var target = e.detail.target;
+            var options = e.detail.options;
+            loadLink(target, options);
+        });
+
     },
 
     onWorkSelected: function(workId) {
