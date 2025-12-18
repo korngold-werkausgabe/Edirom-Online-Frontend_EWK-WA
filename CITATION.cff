@@ -34,7 +34,7 @@ authors:
     orcid: https://orcid.org/0009-0000-4410-4627
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.17953614
+    value: 10.5281/zenodo.17977921
     description: Edirom Online Frontend
 repository-code: https://github.com/Edirom/Edirom-Online-Frontend
 abstract: >-
