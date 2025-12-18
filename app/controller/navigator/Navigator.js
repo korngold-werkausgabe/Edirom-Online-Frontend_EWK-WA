@@ -45,9 +45,7 @@ Ext.define('EdiromOnline.controller.navigator.Navigator', {
         var lang = window.getLanguage('application_language');
 
         this.fetchNavigatorContent(workId, editionId, lang, function (navigatorContent) {
-            console.log(me.ediromNavigator);
             me.ediromNavigator.setAttribute('navigator-data', JSON.stringify(navigatorContent));
-        // continue processing navigatorContent here
         });
 
 
