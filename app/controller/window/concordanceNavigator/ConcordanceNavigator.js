@@ -61,7 +61,6 @@ Ext.define('EdiromOnline.controller.window.concordanceNavigator.ConcordanceNavig
         me.ediromConcordanceNavigator = document.querySelector(`#${win.id}-concordance-navigator`);
         me.ediromConcordanceNavigator.addEventListener('show-connection-request', function (e) {
             var plist = e.detail.plist;
-            // var linkController = app.getController('LinkController');
             loadLink(plist, { useExisting: true, onlyExisting: true });
         });
         me.ediromConcordanceNavigator.addEventListener('changed-play-pause-status', function (e) {
