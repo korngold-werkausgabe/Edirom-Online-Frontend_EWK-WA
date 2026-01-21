@@ -20,6 +20,9 @@ span.musicalSymbol {
     font-family: Bravura;
 }
 
+span.searchResult {
+    background: -webkit-linear-gradient(center top , #FFE06B, #F39552) repeat scroll 0 0 transparent;
+}
 
 /* coppied from todo.css */
 .subProperty {
@@ -125,4 +128,35 @@ color: rgba(0,0,0,0.75);
 position: absolute;
 top: 5px;
 left: 10px;
+}
+
+
+div.annotation.combinedHighlight div.annotIcon {
+    border: 1px solid white;
+}
+#workSwitch {
+	padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 5px !important;
+    top: 9px !important;
+    font-size: 14px;
+    /*color: rgb(23, 94, 160);*/
+}
+
+#workSwitch:hover {
+	box-shadow: 1px 2px 4px rgb(23, 94, 160);
+	border-radius: 20px;
+	}
+
+span#workSwitch-btnInnerEl:before {
+	color: rgb(23, 94, 160);
+	font-family: FontAwesome;
+	content: '\f054 ';
+	padding-right: 5px;
+	font-size: 10px;
+}
+
+.x-menu-item-active {
+    background-color: rgb(36, 145, 235) !important;
+    color: rgb(161, 209, 247) !important;
 }
