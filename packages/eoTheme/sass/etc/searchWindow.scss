@@ -1,0 +1,5 @@
+/* reenables scroll bar in searchWindows on Windows */
+/* copied from todo.css */
+.searchWindow .x-panel-body {
+    overflow-y: scroll !important;
+}

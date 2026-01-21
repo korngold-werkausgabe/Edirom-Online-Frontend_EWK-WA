@@ -110,7 +110,7 @@
 
 .textViewContent h1 {
 	font-weight: bold;
-	font-size: 2em;
+	font-size: 1.3em !important; //coppied from todo.css
 	line-height: 34pt;
 }
 
@@ -1053,4 +1053,27 @@
 {
 	font-size: smaller;
 	color: grey;
+}
+/* coppied from todo.css */
+.textViewContent .teidiv0 > p, .textViewContent .teidiv0 > .listhead {
+    margin-left: 2em !important;
+    margin-right: 2em;
+}
+
+.textViewContent .teidiv0 > div.note {
+    display: block;
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+.textViewContent span.note::before {
+    content: none;
+}
+
+.textViewContent span.note::after {
+    content: none;
+}
+
+.textViewContent span.note div.annotation {
+    display: inline-block;
 }

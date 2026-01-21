@@ -17,13 +17,16 @@ $content_baseFont_size: 14px;
 	
 }
 
+.annotationTip .x-tip-body {
+    overflow: auto;
+}
 
 .annotView {
 	margin: 10px;
 	
 	.metaBox {
 		border: 1px solid #999999;
-		
+		 color: rgb(146, 64, 92); // Coppied from todo.css
 		@include background(linear-gradient(top, $metaBox_bg, darken($metaBox_bg, 20%)));
 		@include border-radius(5px, 5px);
 		
@@ -59,7 +62,17 @@ $content_baseFont_size: 14px;
 			}
 			
 		}
-		
+		/* Coppied from todo.css */
+		.contentBox {
+			padding-left: 20px;
+			padding-right: 20px;
+		}
+	.ref:hover {
+			color: rgb(146, 64, 92);
+			cursor: pointer;
+			text-decoration: underline;
+		}
+	
 	}
 	
 	.contentBox {
@@ -155,7 +168,7 @@ $content_baseFont_size: 14px;
 
 .annotTip {
 	height: 100%;
-	
+	width: 100% !important; //copied from todo.css
 	.metaBox {
 		display: none;
 		border: 1px solid #999999;
@@ -167,7 +180,7 @@ $content_baseFont_size: 14px;
 		position: absolute;
 		bottom: 10px;
 		left: 10px;
-		width: 240px;
+		width: 100% !important; //copied from todo.css
 		max-height: 180px;
 		overflow: auto;
 		
@@ -273,12 +286,18 @@ $content_baseFont_size: 14px;
 }
 
 .annotationView .x-splitter-vertical {
-	background-image: -moz-radial-gradient(50% 50% , ellipse cover, #999999, #ffffff 50%);
-	cursor: ew-resize;
+    background-image: 
+        -moz-radial-gradient(50% 50%, ellipse cover, #999999, #ffffff 50%),
+        -webkit-radial-gradient(50% 50%, ellipse cover, #999, white 50%), /* Fix for Chrome: splitter in Annotation View; coppied from todo.css */
+        radial-gradient(ellipse at 50% 50%, #999999 0%, #ffffff 50%);
+    cursor: ew-resize;
 }
 
 .annotationView .x-splitter-horizontal {
-	background-image: -moz-radial-gradient(50% 50% , ellipse cover, #999999, #ffffff 50%);
+	background-image: 
+        -moz-radial-gradient(50% 50%, ellipse cover, #999999, #ffffff 50%),
+        -webkit-radial-gradient(50% 50%, ellipse cover, #999, white 50%), /* Fix for Chrome: splitter in Annotation View; coppied from todo.css */
+        radial-gradient(ellipse at 50% 50%, #999999 0%, #ffffff 50%);
 	cursor: ns-resize;
 }
 

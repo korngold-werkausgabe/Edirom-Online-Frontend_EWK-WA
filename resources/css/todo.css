@@ -1,21 +1,25 @@
 /* possible workaround for explosiv edirom windows in rwa online. Does not work in Safari!!! but everywhere else.*/
+/* Copied to gloabal.scss from todo.css on 2024-06-12 */
 body {
     overflow: clip !important;
-}
+} 
 
 /* prevents scroll bars in sourceView windows on Windows */
+/* copied to xml.scss */
 .ediromWindow .sourceView .x-panel-body {
     overflow: hidden !important;
 }
 
 /* reenables scroll bar in searchWindows on Windows */
+/* copied to searchWindow.scss */
 .searchWindow .x-panel-body {
     overflow-y: scroll !important;
 }
-
+/* coppied to textViewContent.scss */
 .textViewContent h1 {
-    font-size: 1.3em !important;
+    font-size: 1.3em !important; 
 }
+/* coppied to window.scss */
 
 .navigatorSeparator {
     height: 1px;
@@ -24,7 +28,7 @@ body {
     margin-right: 20px;
     margin-left: 10px;
 }
-
+/*coppied from todo.css to textViewContent.scss on 2024-06-12*/
 .textViewContent .teidiv0 > p, .textViewContent .teidiv0 > .listhead {
     margin-left: 2em !important;
     margin-right: 2em;
@@ -47,7 +51,7 @@ body {
 .textViewContent span.note div.annotation {
     display: inline-block;
 }
-
+/* Coppied to toolbar.scss on 2024-06-12 */
 #ediromToolbar .x-btn.insetButton.x-btn-default-toolbar-small {
     background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #dddddd), color-stop(30%, #c3c3c3), color-stop(65%, #b8b8b8), color-stop(100%, #a0a0a0));
     background-image: -webkit-linear-gradient(top, #dddddd, #c3c3c3 30%, #b8b8b8 65%, #a0a0a0);
@@ -56,6 +60,7 @@ body {
     background-image: linear-gradient(top, #dddddd, #c3c3c3 30%, #b8b8b8 65%, #a0a0a0);
 }
 
+/* Coppied to global.scss on 2024-06-12 */
 span.smufl {
     font-family: 'Bravura';
     font-size: 1.5em;
@@ -69,6 +74,7 @@ span.musicalSymbol {
     font-family: Bravura;
 }
 
+/*Coppied to fontface.scss on 2024-06-12*/
 @font-face {
     font-family: 'Bravura';
     src: url('../fonts/bravura/eot/Bravura.eot#') format('eot'),
@@ -80,7 +86,7 @@ span.musicalSymbol {
         url('../fonts/bravura/otf/BravuraText.otf') format('opentype'),
         url('../fonts/bravura/svg/BravuraText.svg#bravuraregular') format('svg');
 }
-
+/* Coppied to xml.scss */
 .ace_editor {
     bottom: 0;
     left: 0;
@@ -88,21 +94,22 @@ span.musicalSymbol {
     right: 0;
     top: 0;
 }
-
+/*already present in facsimile.scss */
 .facsContEvents {
     bottom: 0;
     left: 0;
     position: absolute;
     right: 0;
     top: 0;
-    overflow: hidden;
+    overflow: hidden; /*does not  present in facsimile.scss however did not copy bacuse it was not applied in the defualt setting to */
 }
-
+/* Copied to global.scss */
 .measure {
     text-align: center;
     z-index: 5;
 }
 
+/* Coppied to Window.scss */
 .ediromWindow .annotation {
     z-index: 10;
     display: flex;
@@ -119,6 +126,7 @@ span.musicalSymbol {
 .ediromWindow .annotation .annotIcon {
     cursor: pointer;
 }
+/* Coppied to annotation.scss */
 
 .annotationTip .x-tip-body {
     overflow: auto;
@@ -131,7 +139,7 @@ span.musicalSymbol {
 
 /* Fix for Chrome: splitter in Annotation View */
 .annotationView .x-splitter-horizontal {
-    background-image: -webkit-radial-gradient(50% 50%,ellipse cover,#999,white 50%);
+    background-image: -webkit-radial-gradient(50% 50%,ellipse cover,#999,white 50%); 
 }
 
 .annotationView .x-splitter-vertical {
@@ -139,6 +147,7 @@ span.musicalSymbol {
 }
 
 /*text Metadata*/
+/* Coppied from headerView.scss */
 
 .headerView .section {
     float: left;
@@ -148,6 +157,7 @@ span.musicalSymbol {
 .headerViewContent h1{
   font-size: 18px;
 }
+/* Coppied to global.scss */
 
 .subProperty {
     clear: both;
@@ -247,7 +257,7 @@ span.italic {
 .part {
 z-index: 1;
 }
-
+/* copied to global.scss */
 .partInner {
 font-size: 13px;
 font-weight: bold;
@@ -261,9 +271,10 @@ position: absolute;
 top: 5px;
 left: 10px;
 }
+/* copied to annotations.scss */
 
 .annotTip {
-    width: 100% !important;
+    width: 100% !important; 
 }
 
 .annotTip .metaBox {
@@ -273,6 +284,8 @@ left: 10px;
 .annotTip .contentBox {
     width: 100% !important;
 }
+
+/* copied to annotations.scss */
 
 .annotView .ref {
     color: rgb(146, 64, 92);
