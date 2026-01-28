@@ -45,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docker-images-${{ steps.build_sha.outputs.sha }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PAT_TOKEN }}
           run-id: ${{ steps.run_info.outputs.run_id }}
 
       - name: Set up Docker Buildx
@@ -79,7 +79,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.PAT_TOKEN }}
 
       - name: Extract metadata for Docker Hub
         id: meta_dockerhub
