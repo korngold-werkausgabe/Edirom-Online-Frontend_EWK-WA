@@ -90,7 +90,7 @@ jobs:
         with:
           context: /tmp/docker-context
           push: false
-          tags: edirom/online-frontend-ewk:${{ steps.build_sha.outputs.sha }}-amd64
+          tags: korngold-werkausgabe/online-frontend-ewk:latest-amd64
           platforms: linux/amd64
           outputs: type=docker,dest=/tmp/docker-image-amd64.tar
 
@@ -99,7 +99,7 @@ jobs:
         with:
           context: /tmp/docker-context
           push: false
-          tags: edirom/online-frontend-ewk:${{ steps.build_sha.outputs.sha }}-arm64
+          tags: korngold-werkausgabes/online-frontend-ewk:latest-arm64
           platforms: linux/arm64
           outputs: type=docker,dest=/tmp/docker-image-arm64.tar
 
