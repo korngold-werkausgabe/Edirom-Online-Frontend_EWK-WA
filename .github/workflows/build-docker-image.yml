@@ -84,7 +84,7 @@ jobs:
       - name: Upload Docker images as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: docker-image-${{ steps.build_sha.outputs.sha }}
+          name: docker-images-${{ steps.build_sha.outputs.sha }}
           path: |
             /tmp/docker-image-amd64.tar
             /tmp/docker-image-arm64.tar
