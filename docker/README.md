@@ -16,20 +16,20 @@ The solution consists of three main components:
 
 ```bash
 # Build from repository root
-docker build -t edirom-online-frontend_ewk-wa:latest -f docker/Dockerfile .
+docker build -t eof_ewk-wa:latest -f docker/Dockerfile .
 ```
 
 ### Running the Container
 
 ```bash
 # Run with root path (default)
-docker run --rm -p 8080:80 edirom-online-frontend:latest
+docker run --rm -p 8080:80 eof_ewk-wa:latest
 
 # Run with custom subpath
-docker run --rm -p 8080:80 -e APP_PATH=/edirom edirom-online-frontend:latest
+docker run --rm -p 8080:80 -e APP_PATH=/edirom eof_ewk-wa:latest
 
 # Run with nested path
-docker run --rm -p 8080:80 -e APP_PATH=/korngold/edirom edirom-online-frontend:latest
+docker run --rm -p 8080:80 -e APP_PATH=/korngold/edirom eof_ewk-wa:latest
 ```
 
 Access in browser:
