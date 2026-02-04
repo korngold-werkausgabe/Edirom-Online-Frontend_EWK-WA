@@ -6,6 +6,7 @@ on:
     branches:
       - dev-ewk
       - bug/37-Dockerimage-release-fails
+      - ftr/38-docker-entrypoint
 
 jobs:
   build:
