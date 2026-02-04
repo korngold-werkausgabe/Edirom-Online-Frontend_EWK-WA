@@ -63,20 +63,31 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Build Docker image for amd64
         uses: docker/build-push-action@v5
         with:
           context: /tmp/docker-context
           push: false
-          tags: korngold-werkausgabe/online-frontend-ewk:latest
-          platforms: linux/amd64,linux/arm64
-          outputs: type=docker,dest=/tmp/docker-image.tar
+          tags: korngold-werkausgabe/online-frontend-ewk:latest-amd64
+          platforms: linux/amd64
+          outputs: type=docker,dest=/tmp/docker-image-amd64.tar
 
-      - name: Upload Docker image as artifact
+      - name: Build Docker image for arm64
+        uses: docker/build-push-action@v5
+        with:
+          context: /tmp/docker-context
+          push: false
+          tags: korngold-werkausgabe/online-frontend-ewk:latest-arm64
+          platforms: linux/arm64
+          outputs: type=docker,dest=/tmp/docker-image-arm64.tar
+
+      - name: Upload Docker images as artifact
         uses: actions/upload-artifact@v4
         with:
           name: docker-image-${{ steps.build_sha.outputs.sha }}
-          path: /tmp/docker-image.tar
+          path: |
+            /tmp/docker-image-amd64.tar
+            /tmp/docker-image-arm64.tar
           retention-days: 7
 
       - name: Trigger release-docker-image
