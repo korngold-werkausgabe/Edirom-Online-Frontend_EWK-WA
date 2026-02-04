@@ -41,8 +41,7 @@ find /usr/share/nginx/html \
   sed -i "s|${APP_PATH_PACEHOLDER}|${NORMALIZED_PATH}|g" "$f"
   sed -i "s|${BACKEND_PATH_PACEHOLDER}/|${BACKEND_PATH%/}/|g" "$f" # %/ removes trailing slash for correct replacement
   sed -i "s|${BACKEND_PATH_PACEHOLDER}|${BACKEND_PATH}|g" "$f"
-  sed -i "s|${BACKEND_URL_PACEHOLDER}/|${BACKEND_URL%/}/|g" "$f" # %/ removes trailing slash for correct replacement
-  sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL}|g" "$f"
+  sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL%/}/|g" "$f" # Add trailing slash if not present
 done
 
 # replace placeholder in nginx configuration
@@ -51,7 +50,7 @@ sed -i "s|${APP_PATH_PACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_PATH_PACEHOLDER}/|${BACKEND_PATH%/}/|g" /etc/nginx/nginx.conf # %/ removes trailing slash for correct replacement
 sed -i "s|${BACKEND_PATH_PACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_URL_PACEHOLDER}/|${BACKEND_URL%/}/|g" /etc/nginx/nginx.conf # %/ removes trailing slash for correct replacement
-sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf
+sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL%/}/|g" /etc/nginx/nginx.conf # Add trailing slash if not present
 
 echo "Placeholder replacement completed."
 echo "====================================="
