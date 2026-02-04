@@ -51,14 +51,14 @@ jobs:
           sparse-checkout: |
             docker
           sparse-checkout-cone-mode: false
-          path: /tmp/repo
+          path: repo
 
       - name: Copy Docker configuration files
         run: |
           mkdir -p /tmp/docker-context/docker
-          cp /tmp/repo/docker/Dockerfile /tmp/docker-context/
-          cp /tmp/repo/docker/nginx.conf /tmp/docker-context/docker/
-          cp /tmp/repo/docker/entrypoint.sh /tmp/docker-context/docker/
+          cp repo/docker/Dockerfile /tmp/docker-context/
+          cp repo/docker/nginx.conf /tmp/docker-context/docker/
+          cp repo/docker/entrypoint.sh /tmp/docker-context/docker/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
