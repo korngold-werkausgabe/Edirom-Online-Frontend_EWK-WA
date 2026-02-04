@@ -45,71 +45,37 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ steps.run_info.outputs.run_id }}
 
-      - name: Create nginx Dockerfile
+      - name: Checkout repository for Docker files
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docker
+          sparse-checkout-cone-mode: false
+          path: /tmp/repo
+
+      - name: Copy Docker configuration files
         run: |
-          cat > /tmp/docker-context/Dockerfile << 'EOF'
-          FROM nginx:alpine
-
-          COPY nginx.conf /etc/nginx/nginx.conf
-          COPY build/ /usr/share/nginx/html/
-
-          RUN mkdir -p /usr/share/nginx/html/config
-
-          EXPOSE 80
-
-          CMD ["nginx", "-g", "daemon off;"]
-          EOF
-
-      - name: Create nginx configuration
-        run: |
-          cat > /tmp/docker-context/nginx.conf << 'EOF'
-          events {
-              worker_connections 1024;
-          }
-
-          http {
-              include /etc/nginx/mime.types;
-              default_type application/octet-stream;
-
-              server {
-                  listen 80;
-                  root /usr/share/nginx/html;
-                  index index.html;
-                  
-                  location / {
-                  }
-              }
-          }
-          EOF
+          cp /tmp/repo/docker/Dockerfile /tmp/docker-context/
+          cp /tmp/repo/docker/nginx.conf /tmp/docker-context/
+          cp /tmp/repo/docker/entrypoint.sh /tmp/docker-context/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image for amd64
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: /tmp/docker-context
           push: false
-          tags: korngold-werkausgabe/online-frontend-ewk:latest-amd64
-          platforms: linux/amd64
-          outputs: type=docker,dest=/tmp/docker-image-amd64.tar
+          tags: korngold-werkausgabe/online-frontend-ewk:latest
+          platforms: linux/amd64,linux/arm64
+          outputs: type=docker,dest=/tmp/docker-image.tar
 
-      - name: Build Docker image for arm64
-        uses: docker/build-push-action@v5
-        with:
-          context: /tmp/docker-context
-          push: false
-          tags: korngold-werkausgabes/online-frontend-ewk:latest-arm64
-          platforms: linux/arm64
-          outputs: type=docker,dest=/tmp/docker-image-arm64.tar
-
-      - name: Upload Docker images as artifacts
+      - name: Upload Docker image as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: docker-images-${{ steps.build_sha.outputs.sha }}
-          path: |
-            /tmp/docker-image-amd64.tar
-            /tmp/docker-image-arm64.tar
+          name: docker-image-${{ steps.build_sha.outputs.sha }}
+          path: /tmp/docker-image.tar
           retention-days: 7
 
       - name: Trigger release-docker-image
