@@ -2,6 +2,8 @@ FROM nginx:alpine
 
 # Set default APP_PATH (can be overridden at runtime)
 ENV APP_PATH=/
+ENV BACKEND_PATH=/exist
+ENV BACKEND_URL=http://127.0.0.1:8080/${BACKEND_PATH}
 
 # Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/nginx.conf
