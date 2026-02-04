@@ -20,6 +20,16 @@ echo "====================================="
 
 PLACEHOLDER="/APP_PATH"
 
+# Replace placeholder in build files
+echo "Replacing placeholder '${PLACEHOLDER}' with '${NORMALIZED_PATH}' in built files..."
+
+find /usr/share/nginx/html \
+  -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) -print0 \
+| while IFS= read -r -d '' f; do
+  sed -i "s|${PLACEHOLDER}/|${NORMALIZED_PATH%/}/|g" "$f" # %/ removes trailing slash for correct replacement
+  sed -i "s|${PLACEHOLDER}|${NORMALIZED_PATH}|g" "$f"
+done
+
 # replace placeholder in nginx configuration
 sed -i "s|${PLACEHOLDER}/|${NORMALIZED_PATH%/}/|g" /etc/nginx/nginx.conf # %/ removes trailing slash for correct replacement
 sed -i "s|${PLACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
