@@ -4,10 +4,10 @@ FROM nginx:alpine
 ENV APP_PATH=/
 
 # Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx.conf /etc/nginx/nginx.conf
 
 # Copy entrypoint script
-COPY entrypoint.sh /docker-entrypoint.sh
+COPY docker/entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 # Copy build folder
