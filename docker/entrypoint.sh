@@ -4,7 +4,7 @@ set -e
 # Default to root path if not set
 APP_PATH="${APP_PATH:-/}"
 BACKEND_PATH="${BACKEND_PATH:-/exist}"
-BACKEND_URL="${BACKEND_URL:-http://localhost:8000/exist}"
+BACKEND_URL="${BACKEND_URL:-http://localhost:8080/exist}"
 
 # Normalize: ensure it starts with / and doesn't end with / (unless it's just "/")
 case "$APP_PATH" in
@@ -49,7 +49,7 @@ sed -i "s|${APP_PATH_PACEHOLDER}/|${NORMALIZED_PATH%/}/|g" /etc/nginx/nginx.conf
 sed -i "s|${APP_PATH_PACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_PATH_PACEHOLDER}/|${BACKEND_PATH%/}/|g" /etc/nginx/nginx.conf # %/ removes trailing slash for correct replacement
 sed -i "s|${BACKEND_PATH_PACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
-sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL%/}/|g" /etc/nginx/nginx.conf # Add trailing slash if not present
+sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf # No trailing slash for nginx proxy_pass
 
 echo "Placeholder replacement completed."
 echo "====================================="
