@@ -54,6 +54,7 @@ sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf # No
 # remove root redirect when APP_PATH = /
 if [ "${APP_PATH:-/}" = "/" ]; then
     sed -i '/REDIRECT_BLOCK_START/,/REDIRECT_BLOCK_END/d' /etc/nginx/nginx.conf
+    sed -i 's|alias /usr/share/nginx/html;|root /usr/share/nginx/html;|g' /etc/nginx/nginx.conf
 fi
 
 echo "Placeholder replacement completed."
