@@ -51,6 +51,11 @@ sed -i "s|${BACKEND_PATH_PACEHOLDER}/|${BACKEND_PATH%/}/|g" /etc/nginx/nginx.con
 sed -i "s|${BACKEND_PATH_PACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf # No trailing slash for nginx proxy_pass
 
+# remove root redirect when APP_PATH = /
+if [ "${APP_PATH:-/}" = "/" ]; then
+    sed -i '/REDIRECT_BLOCK_START/,/REDIRECT_BLOCK_END/d' /etc/nginx/nginx.conf
+fi
+
 echo "Placeholder replacement completed."
 echo "====================================="
 echo "Starting Nginx..."
