@@ -45,7 +45,7 @@
     <target name="-clean">
         <delete dir="${build.temp.dir}"/>
         <delete includeemptydirs="true">
-            <fileset dir="${build.dir}">
+            <fileset dir="${build.dir}" erroronmissingdir="false">
                 <include name="**/*"/>
             </fileset>
         </delete>
