@@ -56,18 +56,6 @@ Ext.define('EdiromOnline.view.navigator.Navigator', {
         me.callParent();
     },
 
-    afterRender: function() {
-        var me = this;
-        me.callParent();
-
-        /* adding event handlers */
-        //TODO me.resizer.on('resize', me.onResize, me);
-
-        me.el.style = {
-            backgroundColor: '#ffffff'
-        };
-    },
-
     getUserHeight: function() {
         return this.userHeight;
     },
