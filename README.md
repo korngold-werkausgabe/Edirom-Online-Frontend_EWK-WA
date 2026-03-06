@@ -28,11 +28,29 @@ Alternatively, you can use a Docker container image for building, e.g. [bwbohl/s
 docker run --rm -it -v /ABSOLUTE/PATH/TO/YOUR/LOCAL/EDIROM-ONLINE-FRONTEND/CLONE:/app --name ediBuild ghcr.io/bwbohl/sencha-cmd:latest
 ```
 
-When you have your system prepared with all prerequisites or you have your docker container running you are now set up to execute the build command. Do this by calling the build script included in this repository, either in your native shell or in the container shell, e.g.:
+When you have your system prepared with all prerequisites or you have your docker container running you are now set up to execute the build. You can use either [Sencha Cmd] or [Apache Ant][apache-ant] directly — both are equivalent:
 
 ```bash
-./build.sh
+# Using Sencha Cmd
+sencha app build
+
+# Using Ant (default target is `build`)
+ant
+# or explicitly
+ant build
 ```
+
+For other build outputs as defined in the [Sencha Cmd CLI reference] you can run the respective commands, e.g., for a testing build (unminified output, useful during development):
+
+```bash
+# Using Sencha Cmd
+sencha app build testing
+
+# Using Ant
+ant build-testing
+```
+
+If you are interested in the deeper structure of the build process, please refer to [Sencha Cmd build guide] and )
 
 #### Overriding build properties locally
 
@@ -140,6 +158,10 @@ Edirom-Online Frontend is released to the public under the terms of the [MIT] op
 [Edirom-Online milestones]: https://github.com/Edirom/Edirom-Online/milestones
 [CONTRIBUTING]: CONTRIBUTING.md
 [bwbohl/sencha-cmd]: https://github.com/bwbohl/sencha-cmd/pkgs/container/sencha-cmd
+[Sencha Cmd]: https://docs.sencha.com/cmd/7.0.0/index.html
+[Sencha Cmd CLI reference]: https://docs.sencha.com/cmd/7.0.0/guides/cli_reference.html
+[Sencha Cmd Inside The App Build Process]: https://docs.sencha.com/cmd/7.0.0/guides/advanced_cmd/cmd_build.html
+[apache-ant]: https://ant.apache.org/
 [exist-db via Docker]: https://exist-db.org/exist/apps/doc/docker
 [building sample data]: https://github.com/Edirom/EditionExample?tab=readme-ov-file#building
 [Edirom mailinglist]: https://lists.uni-paderborn.de/mailman/listinfo/edirom-l
