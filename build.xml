@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="EdiromOnline" default="xar">
+<project name="EdiromOnline" default="build">
 
     <!-- This build script makes use of some extensions point provided by
          Sencha Cmd. For more information please visit:
@@ -103,10 +103,6 @@
                 <include name="controller.xq"/>
             </fileset>
         </copy>
-    </target>
-
-    <target name="xar" depends="check-dependencies, clean, build, download-euryanthe, inject-properties, copy-xar-resources">
-        <antcall target="-xar"/>
     </target>
 
     <target name="-xar">
