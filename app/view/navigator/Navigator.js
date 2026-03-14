@@ -41,13 +41,13 @@ Ext.define('EdiromOnline.view.navigator.Navigator', {
 
         let navigatorJsElement = document.createElement("script");
         navigatorJsElement.setAttribute("defer", "defer");
-        navigatorJsElement.setAttribute("src", "resources/web-components/edirom-navigator/navigator.js");
+        navigatorJsElement.setAttribute("src", "resources/js/edirom-navigator/navigator.js");
         navigatorJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(navigatorJsElement);
 
         let ediromCoreJsElement = document.createElement("script");
         ediromCoreJsElement.setAttribute("defer", "defer");
-        ediromCoreJsElement.setAttribute("src", "resources/web-components/edirom-core-web-components/src/edirom-icon.js");
+        ediromCoreJsElement.setAttribute("src", "resources/js/edirom-core-web-components/edirom-icon.js");
         ediromCoreJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(ediromCoreJsElement);
 
