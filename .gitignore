@@ -5,3 +5,5 @@ build-euryanthe
 .idea
 .vscode
 local.properties
+.env
+sencha-error-*
