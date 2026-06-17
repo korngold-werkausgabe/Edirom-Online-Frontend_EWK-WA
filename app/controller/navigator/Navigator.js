@@ -54,6 +54,7 @@ Ext.define('EdiromOnline.controller.navigator.Navigator', {
             {
                 editionId: editionId,
                 workId: workId,
+                mode: 'json',
                 lang: lang
             },
             Ext.bind(function (response) {
