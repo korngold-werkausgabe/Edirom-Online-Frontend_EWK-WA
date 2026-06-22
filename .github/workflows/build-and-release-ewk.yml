@@ -55,7 +55,7 @@ jobs:
 
       - name: Build Docker image with latest tag (Nginx)
         env:
-            IMAGE_NAME_GHCR: ghcr.io/${{ github.actor }}/eof-ewk:latest
+            IMAGE_NAME_GHCR: ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/eof-ewk:latest
             IMAGE_NAME_DOCKERHUB: ${{ secrets.DOCKERHUB_USERNAME }}/eof-ewk:latest
         run: |
           cat <<EOF > Dockerfile
