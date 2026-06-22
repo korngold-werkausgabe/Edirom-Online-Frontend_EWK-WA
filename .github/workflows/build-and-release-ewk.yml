@@ -29,7 +29,7 @@ jobs:
 
       - name: Build Sencha-CMD-Image
         run: |
-          cd sencha-cmd-docker
+          cd sencha-cmd
           docker buildx build --platform linux/amd64 -t local/sencha-cmd:latest --load .
 
       - name: Build mit Sencha-CMD-Docker
