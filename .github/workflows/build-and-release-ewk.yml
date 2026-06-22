@@ -25,7 +25,7 @@ jobs:
       # --- Build with Sencha ---
 
       - name: Clone Sencha-CMD-Docker
-        run: git clone https://github.com/bwbohl/sencha-cmd-docker.git
+        run: git clone https://github.com/bwbohl/sencha-cmd.git
 
       - name: Build Sencha-CMD-Image
         run: |
