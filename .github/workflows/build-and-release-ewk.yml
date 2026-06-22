@@ -31,7 +31,7 @@ jobs:
         run: docker run --rm -v $PWD:/app -w /app sencha-cmd bash ./build.sh
 
       - name: Zeige Inhalt nach Build
-        run: ls -l build
+        run: ls -l 
 
       # --- Archive build directory ---
       - name: Create eof-ewk-latest.tar.gz
