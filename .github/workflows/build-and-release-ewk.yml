@@ -54,12 +54,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image with latest tag (Nginx)
+        env:
+            IMAGE_NAME_GHCR: ghcr.io/${{ github.actor }}/eof-ewk:latest
+            IMAGE_NAME_DOCKERHUB: ${{ secrets.DOCKERHUB_USERNAME }}/eof-ewk:latest
         run: |
           cat <<EOF > Dockerfile
           FROM nginx:alpine
           COPY build/ /usr/share/nginx/html
           EOF
-          docker buildx --platform linux/amd64,linux/amd64,linux/arm64 -t $IMAGE_NAME_GHCR -t $IMAGE_NAME_DOCKERHUB .
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t $IMAGE_NAME_GHCR \
+            -t $IMAGE_NAME_DOCKERHUB \
+            --push .
 
       # --- Release build.tar.gz ---
       - name: Upload eof-ewk-latest.tar.gz as Artifact
