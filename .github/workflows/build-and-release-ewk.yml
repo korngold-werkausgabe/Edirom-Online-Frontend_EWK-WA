@@ -6,8 +6,6 @@ on:
       - dev-ewk
       - ftr/23-dockerimage-release
     tags:
-      - 'v*'
-      - 'release-*'
 
 env:
   IMAGE_NAME: eof-ewk
@@ -30,7 +28,10 @@ jobs:
         run: docker build -t sencha-cmd .sencha-cmd
 
       - name: Build App with build.sh
-        run: docker run --rm -v $PWD:/workspace -w /workspace sencha-cmd bash ./build.sh
+        run: docker run --rm -v $PWD:/app -w /app sencha-cmd bash ./build.sh
+
+      - name: Zeige Inhalt nach Build
+        run: ls -l build
 
       # --- Archive build directory ---
       - name: Create eof-ewk-latest.tar.gz
