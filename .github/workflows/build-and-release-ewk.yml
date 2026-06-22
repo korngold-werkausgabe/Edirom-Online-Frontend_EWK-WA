@@ -59,7 +59,7 @@ jobs:
           FROM nginx:alpine
           COPY build/ /usr/share/nginx/html
           EOF
-          docker build -t $IMAGE_NAME_GHCR -t $IMAGE_NAME_DOCKERHUB .
+          docker buildx --platform linux/amd64,linux/amd64,linux/arm64 -t $IMAGE_NAME_GHCR -t $IMAGE_NAME_DOCKERHUB .
 
       # --- Release build.tar.gz ---
       - name: Upload eof-ewk-latest.tar.gz as Artifact
