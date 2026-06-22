@@ -24,7 +24,7 @@ jobs:
 
       # --- Build with Sencha ---
       - name: Build mit Sencha-CMD-Docker
-        run: docker run --rm -v $PWD:/app -w /app ghcr.io/bwbohl/sencha-cmd:latest /bin/sh ./build.sh
+        run: docker run --rm -v $PWD:/app -w /app ghcr.io/bwbohl/sencha-cmd:latest /bin/sh -c "./build.sh"
 
       # --- Archive build directory ---
       - name: Create eof-ewk-latest.tar.gz
