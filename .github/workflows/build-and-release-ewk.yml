@@ -1,0 +1,65 @@
+name: Build and Release EWK
+
+on:
+  push:
+    branches:
+      - dev-ewk
+      - ftr/23-dockerimage-release
+
+env:
+  IMAGE_NAME: eof-ewk
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      # --- Build XAR ---
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build XAR
+        run: ./gradlew clean xar
+
+      - name: Copy XAR to fixed file name
+        run: |
+          cp build/libs/*.xar release.xar
+
+      # --- Build Dockerimage ---
+      - name: Login to GitHub Packages Docker
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image with latest tag
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}:latest -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest .
+
+      # --- Release XAR ---
+      - name: Upload XAR as Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release.xar
+
+      # --- Release Dockerimage ---
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          docker push ghcr.io/${{ github.repository }}:latest
+
+      - name: Push Docker image to DockerHub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
