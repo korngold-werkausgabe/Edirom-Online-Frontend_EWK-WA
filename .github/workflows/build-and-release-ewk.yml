@@ -6,8 +6,8 @@ on:
       - dev-ewk
       - ftr/23-dockerimage-release
     tags:
-        - 'v*'
-        - 'release-*'
+      - "v*"
+      - "release-*"
 
 env:
   IMAGE_NAME: eof-ewk
@@ -23,8 +23,17 @@ jobs:
         uses: actions/checkout@v3
 
       # --- Build with Sencha ---
+
+      - name: Clone Sencha-CMD-Docker
+        run: git clone https://github.com/bwbohl/sencha-cmd-docker.git
+
+      - name: Build Sencha-CMD-Image
+        run: |
+          cd sencha-cmd-docker
+          docker buildx build --platform linux/amd64 -t local/sencha-cmd:latest --load .
+
       - name: Build mit Sencha-CMD-Docker
-        run: docker run --rm -v $PWD:/app -w /app ghcr.io/bwbohl/sencha-cmd:latest /bin/sh -c "./build.sh"
+        run: docker run --rm -v $PWD:/app -w /app local/sencha-cmd:latest /bin/sh -c "./build.sh"
 
       # --- Archive build directory ---
       - name: Create eof-ewk-latest.tar.gz
