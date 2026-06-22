@@ -8,7 +8,7 @@ on:
     tags:
         - 'v*'
         - 'release-*'
-        
+
 env:
   IMAGE_NAME: eof-ewk
   IMAGE_NAME_GHCR: ghcr.io/korngold-werkausgabe/eof-ewk:latest
@@ -24,7 +24,7 @@ jobs:
 
       # --- Build with Sencha ---
       - name: Build mit Sencha-CMD-Docker
-        run: docker run --rm -v $PWD:/app -w /app ghcr.io/bwbohl/sencha-cmd:latest bash ./build.sh
+        run: docker run --rm -v $PWD:/app -w /app ghcr.io/bwbohl/sencha-cmd:latest /bin/sh ./build.sh
 
       # --- Archive build directory ---
       - name: Create eof-ewk-latest.tar.gz
