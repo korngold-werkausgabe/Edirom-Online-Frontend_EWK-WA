@@ -10,7 +10,6 @@ on:
       - "release-*"
 
 env:
-  IMAGE_NAME: eof-ewk
   IMAGE_NAME_GHCR: ghcr.io/korngold-werkausgabe/eof-ewk:latest
   IMAGE_NAME_DOCKERHUB: ${{ secrets.DOCKERHUB_USERNAME }}/eof-ewk:latest
 
@@ -22,7 +21,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      # --- Build with Sencha ---
+      # ----------- Build with Sencha CMD ---------
       - name: Clone Sencha-CMD-Docker
         run: git clone https://github.com/bwbohl/sencha-cmd.git
 
@@ -31,29 +30,11 @@ jobs:
           cd sencha-cmd
           docker buildx build --platform linux/amd64 -t local/sencha-cmd:latest --load .
 
-      - name: Build mit Sencha-CMD-Docker
+      - name: Build with Sencha-CMD-Docker
         run: docker run --rm -v $PWD:/app -w /app local/sencha-cmd:latest "./build.sh"
 
-      # --- Archive build directory ---
-      - name: Create eof-ewk-latest.tar.gz
-        run: tar -czf eof-ewk-latest.tar.gz build
-
-      # --- Login to Registries ---
-      - name: Login to GitHub Packages Docker
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-
-      - name: Create nginx.conf inline
+      # ----------- NGINX Config and Entrypoint Creation -----------
+      - name: Create nginx.conf
         run: |
           cat <<'EOF' > nginx.conf
           server {
@@ -77,12 +58,42 @@ jobs:
               }
           }
           EOF
-      # --- Set up Docker Buildx (fixes multiarch issue!) ---
+
+      - name: Create entrypoint.sh for ENV injection
+        run: |
+          cat <<'EOF' > entrypoint.sh
+          #!/bin/sh
+          set -e
+          cat <<EOC > /usr/share/nginx/html/config.json
+          {
+            "APP_PATH": "${APP_PATH:-/}",
+            "BACKEND_PATH": "${BACKEND_PATH:-/}",
+            "BACKEND_URL": "${BACKEND_URL:-http://localhost:8080/exist/apps/Edirom-Online-Backend}"
+          }
+          EOC
+          exec nginx -g 'daemon off;'
+          EOF
+          chmod +x entrypoint.sh
+
+      # ------------- Docker Registries Login & Buildx Setup ----------
+      - name: Login to GitHub Packages Docker
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # --- Build and push multiarch image with NGINX ---
-      - name: Build Docker image with latest tag (Nginx)
+      # ------------ Docker Image Build & Push (multiarch, with Config) ----------
+      - name: Build and push multiarch image (Nginx)
         env:
           IMAGE_NAME_GHCR: ghcr.io/korngold-werkausgabe/eof-ewk:latest
           IMAGE_NAME_DOCKERHUB: ${{ secrets.DOCKERHUB_USERNAME }}/eof-ewk:latest
@@ -91,6 +102,9 @@ jobs:
           FROM nginx:alpine
           COPY build/ /usr/share/nginx/html
           COPY nginx.conf /etc/nginx/conf.d/default.conf
+          COPY entrypoint.sh /entrypoint.sh
+          RUN chmod +x /entrypoint.sh
+          ENTRYPOINT ["/entrypoint.sh"]
           EOF
 
           docker buildx build \
@@ -99,7 +113,10 @@ jobs:
             -t $IMAGE_NAME_DOCKERHUB \
             --push .
 
-      # --- Release build.tar.gz ---
+      # ---------------- Optional: Build-Artifact ---------------
+      - name: Create eof-ewk-latest.tar.gz
+        run: tar -czf eof-ewk-latest.tar.gz build
+
       - name: Upload eof-ewk-latest.tar.gz as Artifact
         uses: actions/upload-artifact@v4
         with:
