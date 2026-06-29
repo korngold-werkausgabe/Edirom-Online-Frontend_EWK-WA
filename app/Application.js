@@ -119,14 +119,12 @@ Ext.define('EdiromOnline.Application', {
                     }else if(!Array.isArray(editions)) {
                         this.activeEdition = editions.id;
                         me.getController('PreferenceController').initPreferences(me.activeEdition);
-                        me.loadWebComponents();
                         me.loadEdiromForEdition();
 
                     // If there is only one edition in the backend load it directly
                     }else if(editions.length == 1) {
                         this.activeEdition = editions[0].id;
                         me.getController('PreferenceController').initPreferences(me.activeEdition);
-                        me.loadWebComponents();
                         me.loadEdiromForEdition();
 
                     // If there are multiple editions in the backend show a selection screen
@@ -167,7 +165,6 @@ Ext.define('EdiromOnline.Application', {
         }else {
             me.activeEdition = editionParam;
             me.getController('PreferenceController').initPreferences(me.activeEdition);
-            me.loadWebComponents();
             me.loadEdiromForEdition();
         }
     },
