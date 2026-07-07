@@ -6,6 +6,19 @@ $ui_baseFont_size: 14px;
 $content_baseFont: 'Caudex', Arial, sans-serif;
 $content_baseFont_size: 14px;
 
+
+.annotationView {
+
+	/* Fix for Chrome: splitter in Annotation View */
+	.x-splitter-horizontal {
+		background-image: -webkit-radial-gradient(50% 50%,ellipse cover,#999,white 50%);
+	}
+
+	.x-splitter-vertical {
+		background-image: -webkit-radial-gradient(50% 50%,ellipse cover,#999,white 50%);
+	}
+}
+
 .annotationList {
 	.x-panel-header-default {
 		@include background(linear-gradient(top,#ffffff,#e5e5e5));
@@ -15,8 +28,17 @@ $content_baseFont_size: 14px;
 		@include background(linear-gradient(top,lighten(#ffd538,10%), lighten(#f07822,10%)));
 	}
 	
+	.x-grid-cell.pos * {
+		text-align: right !important;
+	}
+	
 }
 
+.annotationTip {
+	.x-tip-body {
+		overflow: auto;
+	}
+}
 
 .annotView {
 	margin: 10px;
@@ -149,16 +171,28 @@ $content_baseFont_size: 14px;
 			max-width: 100%;
 		}
 	}
+	
+	.ref {
+		color: rgb(146, 64, 92);
+	}
+
+	.ref:hover {
+		color: rgb(146, 64, 92);
+		cursor: pointer;
+		text-decoration: underline;
+	}
 
 }
 
 
 .annotTip {
 	height: 100%;
-	
+	width: 100% !important; 
 	.metaBox {
 		display: none;
 		border: 1px solid #999999;
+		width: 100% !important;
+
 		
 		@include background(linear-gradient(top, $metaBox_bg, darken($metaBox_bg, 20%)));
 		@include border-radius(5px, 5px);
@@ -200,7 +234,7 @@ $content_baseFont_size: 14px;
 	
 	.contentBox {
 	
-		width: 100%;
+		width: 100% !important;
 		overflow: hidden;
 		
 		font-family: $content_baseFont;
@@ -320,31 +354,6 @@ $content_baseFont_size: 14px;
     bottom: 0;
     margin: 10px;
 }
-
-.annotationViewContent .stepLeft {
-	display: none;
-	position: absolute;
-	top: 50%;
-	margin-top: -40px;
-	left: -10px;
-	width: 50px;
-	height: 80px;
-	background-image: url('pix/annotPreviewBackward.png');
-	z-index: 20000;
-}
-
-.annotationViewContent .stepRight {
-	display: none;
-	position: absolute;
-	top: 50%;
-	margin-top: -40px;
-	right: -10px;
-	width: 50px;
-	height: 80px;
-	background-image: url('pix/annotPreviewForward.png');
-	z-index: 20000;
-}
-
 
 
 /*The rendering of annotation symbols on facsimile pages is described with SCSS rules defined in _facsimile.scss.*/

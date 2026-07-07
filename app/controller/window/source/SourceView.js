@@ -44,18 +44,18 @@ Ext.define('EdiromOnline.controller.window.source.SourceView', {
         if(view.initialized) return;
         view.initialized = true;
 
-        view.on('measureVisibilityChange', me.onMeasureVisibilityChange, me);
+        view.on('measuresVisibilityChange', me.onMeasuresVisibilityChange, me);
         view.on('annotationsVisibilityChange', me.onAnnotationsVisibilityChange, me);
         view.on('gotoMovement', me.onGotoMovement, me);
         view.on('gotoMeasureByName', me.onGotoMeasureByName, me);
         view.on('gotoMeasure', me.onGotoMeasure, me);
         view.on('gotoZone', me.onGotoZone, me);
 
-        ToolsController.addMeasureVisibilityListener(view.id, Ext.bind(view.checkGlobalMeasureVisibility, view));
-        view.checkGlobalMeasureVisibility(ToolsController.areMeasuresVisible());
+        ToolsController.addMeasuresVisibilityListener(view.id, Ext.bind(view.checkGlobalVisibility, view));
+        view.checkGlobalVisibility('measures');
 
-        ToolsController.addAnnotationVisibilityListener(view.id, Ext.bind(view.checkGlobalAnnotationVisibility, view));
-        view.checkGlobalAnnotationVisibility(ToolsController.areAnnotationsVisible());
+        ToolsController.addAnnotationsVisibilityListener(view.id, Ext.bind(view.checkGlobalVisibility, view));
+        view.checkGlobalVisibility('annotations');
 
         if(typeof(debug) !== 'undefined' && debug !== null && debug) {
             console.log('Controller: SourceView: onSourceViewRendered. getMovements');
@@ -96,19 +96,31 @@ Ext.define('EdiromOnline.controller.window.source.SourceView', {
                 if(typeof(debug) !== 'undefined' && debug !== null && debug) {
                     console.log(data);
                 }
+                
+                // if taxonomies array is empty but categories and priorities are
+                // populated merge those to a taxonomies array
+                var taxonomies = data['taxonomies'] || [];
+                if (taxonomies.length === 0) {
+                    var categories = data['categories'] || [];
+                    var priorities = data['priorities'] || [];
+                    if (categories.length > 0) {
+                        taxonomies.push({
+                            id: 'ediromCategory',
+                            label: 'ediromCategory',
+                            items: categories
+                        });
+                    }
+                    if (priorities.length > 0) {
+                        taxonomies.push({
+                            id: 'ediromPriority',
+                            label: 'ediromPriority',
+                            items: priorities
+                        });
+                    }
+                }
 
-                var priorities = Ext.create('Ext.data.Store', {
-                    fields: ['id', 'name'],
-                    data: data['priorities']
-                });
-                var categories = Ext.create('Ext.data.Store', {
-                    fields: ['id', 'name'],
-                    data: data['categories']
-                });
-
-                //TODO why not save to object store?
-
-                me.annotInfosLoaded(priorities, categories, view);
+                // hand over returned taxonomies array
+                me.annotInfosLoaded(taxonomies, view);
             }, this)
         );
 
@@ -134,8 +146,9 @@ Ext.define('EdiromOnline.controller.window.source.SourceView', {
         view.setMovements(movements);
     },
 
-    annotInfosLoaded: function(priorities, categories, view) {
-        view.setAnnotationFilter(priorities, categories);
+    annotInfosLoaded: function(taxonomies, view) {
+        // delegate taxonomies array handling to the view
+        view.setAnnotationFilter(taxonomies);
     },
 
     overlaysLoaded: function(overlays, view) {
@@ -163,7 +176,7 @@ Ext.define('EdiromOnline.controller.window.source.SourceView', {
             view.showPage(pageId);
     },
 
-    onMeasureVisibilityChange: function(view, visible) {
+    onMeasuresVisibilityChange: function(view, visible) {
         var me = this;
 
         if(visible) {
@@ -237,7 +250,7 @@ Ext.define('EdiromOnline.controller.window.source.SourceView', {
                     var data = response.responseText;
 
                     var annotations = Ext.create('Ext.data.Store', {
-                        fields: ['id', 'title', 'text', 'uri', 'plist', 'svgList', 'priority', 'categories', 'fn'],
+                        fields: ['id', 'title', 'text', 'uri', 'plist', 'svgList', 'priority', 'categories', 'taxonomyClasses', 'fn'],
                         data: Ext.JSON.decode(data)
                     });
 
@@ -345,7 +358,7 @@ Ext.define('EdiromOnline.controller.window.source.SourceView', {
 	onSourceViewDestroyed: function (view) {
 		var me = this;
 
-		ToolsController.removeMeasureVisibilityListener(view.id);
-		ToolsController.removeAnnotationVisibilityListener(view.id);
+		ToolsController.removeMeasuresVisibilityListener(view.id);
+		ToolsController.removeAnnotationsVisibilityListener(view.id);
 	}
 });
