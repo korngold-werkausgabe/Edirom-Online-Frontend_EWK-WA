@@ -81,9 +81,10 @@ Ext.define('EdiromOnline.Application', {
         var me = this;
 
         me.getController('ConfigController').loadConfig(function (config) {
-            me.backendURL = config.backendURL;
+            me.backendURL = config.backendURL || me.backendURL;
             EdiromOnline.model.Edition.updateProxyUrl(me.backendURL);
             EdiromOnline.model.Work.updateProxyUrl(me.backendURL);
+            EdiromOnline.model.Annotation.updateProxyUrl(me.backendURL);
             me.initializeApplication();
         }, me);
     },
@@ -233,7 +234,6 @@ Ext.define('EdiromOnline.Application', {
             editionCssLink.href = this.backendURL.split('apps/')[0] + me.getController('PreferenceController').getPreference('additional_css_path', true).split("xmldb:exist:///db/")[1];
             document.getElementsByTagName("head")[0].appendChild(editionCssLink);
         }
-        me.loadWebComponents();
     },
     
     initDataStores: function() {

@@ -24,6 +24,9 @@ Ext.define('EdiromOnline.controller.window.HelpWindow', {
         'window.HelpWindow'
     ],
 
+    backendPath: '@backend.path@',
+    backendURL: '@backend.url@',
+
     init: function() {
         this.control({
             'helpWindow': {
