@@ -58,7 +58,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "EdiromOnline.controller.window.text.FacsimileView": [],
   "EdiromOnline.controller.window.text.TextFacsimileSplitView": [],
   "EdiromOnline.controller.window.text.TextView": [],
-  "EdiromOnline.model.Annotation": [],
   "EdiromOnline.model.AnnotationParticipant": [],
   "EdiromOnline.model.Edition": [],
   "EdiromOnline.model.Work": [],
@@ -506,7 +505,6 @@ Ext.ClassManager.addNameAlternateMappings({
   ],
   "Ext.grid.RowEditor": [],
   "Ext.grid.RowEditorButtons": [],
-  "Ext.grid.Scroller": [],
   "Ext.grid.View": [],
   "Ext.grid.ViewDropZone": [],
   "Ext.grid.column.Action": [
@@ -972,7 +970,6 @@ Ext.ClassManager.addNameAliasMappings({
   "EdiromOnline.controller.window.text.FacsimileView": [],
   "EdiromOnline.controller.window.text.TextFacsimileSplitView": [],
   "EdiromOnline.controller.window.text.TextView": [],
-  "EdiromOnline.model.Annotation": [],
   "EdiromOnline.model.AnnotationParticipant": [],
   "EdiromOnline.model.Edition": [],
   "EdiromOnline.model.Work": [],
@@ -1511,7 +1508,6 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.grid.RowEditorButtons": [
     "widget.roweditorbuttons"
   ],
-  "Ext.grid.Scroller": [],
   "Ext.grid.View": [
     "widget.gridview"
   ],
