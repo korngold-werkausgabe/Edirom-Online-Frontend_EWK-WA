@@ -44,18 +44,18 @@ Ext.define('EdiromOnline.controller.window.text.TextView', {
         view.on('annotationsVisibilityChange', me.onAnnotationsVisibilityChange, me);
         view.on('gotoChapter', me.onGotoChapter, me);
 
-        ToolsController.addAnnotationVisibilityListener(view.id, Ext.bind(view.checkGlobalAnnotationVisibility, view));
-        view.checkGlobalAnnotationVisibility(ToolsController.areAnnotationsVisible());
+        ToolsController.addAnnotationsVisibilityListener(view.id, Ext.bind(view.checkGlobalVisibility, view));
+        view.checkGlobalVisibility('annotations');
 
         var uri = view.uri;
 
-        window.doAJAXRequest('data/xql/getText.xql',
+        // request goes to v2 API - relative to backendURI
+        window.doAJAXRequest('api/document',
             'GET',
             {
-                uri: uri,
+                resource: uri,
                 idPrefix: view.id + '_',
-                term: view.window.term,
-                path: view.window.path
+                mediaType: 'text/html'
             },
             Ext.bind(function(response){
                 this.contentLoaded(view, response.responseText);
@@ -98,16 +98,29 @@ Ext.define('EdiromOnline.controller.window.text.TextView', {
 
                 data = Ext.JSON.decode(data);
 
-                var priorities = Ext.create('Ext.data.Store', {
-                    fields: ['id', 'name'],
-                    data: data['priorities']
-                });
-                var categories = Ext.create('Ext.data.Store', {
-                    fields: ['id', 'name'],
-                    data: data['categories']
-                });
+                // if taxonomies array is empty but categories and priorities are
+                // populated merge those to a taxonomies array
+                var taxonomies = data['taxonomies'] || [];
+                if (taxonomies.length === 0) {
+                    var categories = data['categories'] || [];
+                    var priorities = data['priorities'] || [];
+                    if (categories.length > 0) {
+                        taxonomies.push({
+                            id: 'ediromCategory',
+                            label: 'ediromCategory',
+                            items: categories
+                        });
+                    }
+                    if (priorities.length > 0) {
+                        taxonomies.push({
+                            id: 'ediromPriority',
+                            label: 'ediromPriority',
+                            items: priorities
+                        });
+                    }
+                }
 
-                me.annotInfosLoaded(priorities, categories, view);
+                me.annotInfosLoaded(taxonomies, view);
             }, this)
         );
     },
@@ -144,8 +157,8 @@ Ext.define('EdiromOnline.controller.window.text.TextView', {
         view.showAnnotations(annotations);
     },
 
-    annotInfosLoaded: function(priorities, categories, view) {
-        view.setAnnotationFilter(priorities, categories);
+    annotInfosLoaded: function(taxonomies, view) {
+        view.setAnnotationFilter(taxonomies);
     },
 
     onGotoChapter: function(view, chapter) {
@@ -155,6 +168,6 @@ Ext.define('EdiromOnline.controller.window.text.TextView', {
     onBeforeDestroy: function(view) {
         var me = this;
         
-        ToolsController.removeAnnotationVisibilityListener(view.id);
+        ToolsController.removeAnnotationsVisibilityListener(view.id);
     }
 });

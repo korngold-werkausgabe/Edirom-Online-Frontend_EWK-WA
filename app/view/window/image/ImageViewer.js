@@ -101,7 +101,7 @@ Ext.define('EdiromOnline.view.window.image.ImageViewer', {
         me.callParent();
 
         me.on('afterrender', me.initSurface, me, {single: true});
-        me.on('resize', me.calculateHiResImg, me);
+        me.on('resize', me.onResize, me);
     },
 
     initSurface: function() {
@@ -172,87 +172,151 @@ Ext.define('EdiromOnline.view.window.image.ImageViewer', {
         me.imgWidth = 0;
         me.imgHeight = 0;
 
+        me.rect = null;
+
     },
 
     addAnnotations: function(annotations) {
     	
         var me = this;
+        
+        if(typeof(debug) !== 'undefined' && debug !== null && debug) {
+            console.log('view: ImageViewer: addAnnotaitons');
+            console.log('annotations RAW');
+            console.log(annotations);
+        }
 
+        //add empty annotations array to shapes
         me.shapes.add('annotations', []);
-
+        
+        if(typeof(debug) !== 'undefined' && debug !== null && debug) {
+            console.log('me.shapes annotations');
+            console.log(me.shapes.get('annotations'));
+        }
+        
+        // imageViewer specifc overlay container
         var shapeDiv = me.el.getById(me.id + '_facsContEvents');
-        var dh = Ext.DomHelper;
-        var tpl = dh.createTemplate('<div id="{0}" class="annotation {2} {3} {4}" data-edirom-annot-id="{4}"><div id="{0}_inner" class="annotIcon" title="{1}"></div></div>');
-        tpl.compile();
 
+        // iterate over annotations
         annotations.each(function(annotation) {
 
+            if(typeof(debug) !== 'undefined' && debug !== null && debug) {
+                console.log('Processing annotation…');
+                console.log(annotation);
+            }
+
+            var annoId = annotation.get('id');
             var name = annotation.get('title');
             var uri = annotation.get('uri');
-            var categories = annotation.get('categories');
+            var categories = annotation.get('taxonomyClasses') || annotation.get('categories');
             var priority = annotation.get('priority');
-            var fn = annotation.get('fn');          
+            var fn = annotation.get('fn');
             var plist = Ext.Array.toArray(annotation.get('plist'));
-            
+
             Ext.Array.each(annotation.get('svgList'), function(svg) {
                 this.addSVGOverlay(svg.id, svg.svg, name, uri, fn);
                 Ext.Array.push(this.annotSVGOverlays, svg.id);
             }, me);
-            
-            Ext.Array.insert(me.shapes.get('annotations'), 0, plist);
 
+            //push plist to me.shapes annotations
+            Ext.Array.push(me.shapes.get('annotations'), plist);
+
+            //iterate over an annotation’s plist
             Ext.Array.each(plist, function(shape) {
 
-                var id = shape.id;
+                // define participant shape properties
+                var id = shape.id; //pattern from XQL 'annotation_' || $annoId || '_' || string($p/@xml:id)
                 var x = shape.ulx;
                 var y = shape.uly;
                 var width = shape.lrx - shape.ulx;
                 var height = shape.lry - shape.uly;
+                var participantType = shape.type;
 
-                //TODO: Korrektes Bild anhängen
-                var shape = tpl.append(shapeDiv, [me.id + '_' + id, name, categories, priority, annotation.get('id')], true);
+                // calculate ids for annotation icon container and annotation icon
+                var annoIconContainerId = me.id + '_' + id;
+                var annoIconId = annoIconContainerId + annoId;
 
-                shape.setStyle({
-                    position: 'absolute'
-                });
+                // reuse existing outer div if already present (multiple annotations on same zone)
+                var annoIconContainer = Ext.get(annoIconContainerId);
 
-                var innerShape = shape.getById(me.id + '_' + id + '_inner');
-                innerShape.on('mouseenter', me.highlightShape, me, shape, true);
-                innerShape.on('mouseleave', me.deHighlightShape, me, shape, true);
-                innerShape.on('mousedown', me.listenForShapeLink, me, {
+                if (!annoIconContainer) {
+                    
+                    // no pre-existing annotation icon container
+                    // create container
+                    annoIconContainer = Ext.DomHelper.append(shapeDiv, {
+                        tag: 'div',
+                        id: annoIconContainerId,
+                        cls: 'annotation',
+                        'data-edirom-annot-id': annoId
+                    }, true);
+                    annoIconContainer.setStyle({
+                        position: 'absolute'
+                    });
+                }
+
+                // create annoIcon
+                // annotIcon div carries taxonomy classes (categories and priority)
+                var annoIcon = Ext.DomHelper.append(annoIconContainer, {
+                    tag: 'div',
+                    id: annoIconId,
+                    cls: 'annotIcon ' + categories + ' ' + priority + ' ' + participantType,
+                    title: name
+                }, true);
+
+                //* bind actions to annoIcon div *//
+                annoIcon.on('mouseenter', me.highlightShape, me, annoIconContainer, true);
+                annoIcon.on('mouseleave', me.deHighlightShape, me, annoIconContainer, true);
+                annoIcon.on('mousedown', me.listenForShapeLink, me, {
                     stopEvent : true,
-                    elem: innerShape,
+                    elem: annoIcon,
                     fn: fn
                 });
-                innerShape.setStyle({
+                annoIcon.setStyle({
                     position: 'relative'
                 });
 
+                // create the tooltip for the annotation
                 var tip = Ext.create('Ext.tip.ToolTip', {
-                    target: me.id + '_' + id + '_inner',
+                    target: annoIconId,
                     cls: 'annotationTip',
                     width: me.annotTipWidth,
                     maxWidth: me.annotTipMaxWidth,
                     height: me.annotTipHeight,
                     maxHeight: me.annotTipMaxHeight,
                     dismissDelay: 0,
+                    hideDelay: 1000,
                     anchor: 'left',
                     html: getLangString('Annotation_plus_Title', name)
                 });
 
+                // bind function to fetch the contents for the annotation tooltip
                 tip.on('afterrender', function() {
                     window.doAJAXRequest('data/xql/getAnnotation.xql',
-                        'GET', 
+                        'GET',
                         {
                             uri: uri,
-                            target: 'tip',
-                            lang: getPreference('application_language'),
-                            edition: EdiromOnline.getApplication().activeEdition
+                            target: 'tip'
                         },
                         Ext.bind(function(response){
                             this.update(response.responseText);
                         }, this)
                     );
+                    this.el.on('mouseover', function() {
+                        this.addCls('mouseOverAnnot');
+                    }, this);
+                    this.el.on('mouseout', function() {
+                        this.removeCls('mouseOverAnnot');
+                    }, this);
+                }, tip);
+
+                // delay hiding the annotation tooltip
+                tip.on('beforehide', function() {
+                    if(this.el.hasCls('mouseOverAnnot')) {
+                        Ext.Function.defer(function(){
+                            this.hide();
+                        }, 1000, this);
+                        return false;
+                    }
                 }, tip);
             });
         });
@@ -465,8 +529,8 @@ Ext.define('EdiromOnline.view.window.image.ImageViewer', {
             }catch(e) {
                 id = shape.id;
             }
-			//console.log(shapeDiv.getById(me.id + '_' + id));
-            Ext.removeNode(shapeDiv.getById(me.id + '_' + id).dom);
+            var shapeEl = shapeDiv.getById(me.id + '_' + id);
+            if (shapeEl) Ext.removeNode(shapeEl.dom);
         };
 
         if(me.shapes.get(groupName).each)
@@ -658,9 +722,21 @@ Ext.define('EdiromOnline.view.window.image.ImageViewer', {
         me.showRect(0, 0, me.imgWidth, me.imgHeight);
     },
 
-    showRect: function(x, y, width, height, highlight) {
-    
+    showRect: function(x, y, width, height, highlight, fitHeight) {
+
         var me = this;
+
+        // Remember the rect so onResize can re-fit it: this keeps the displayed zone height
+        // equal across the horizontal viewers in measureBasedView even when the layout settles
+        // its container sizes over several passes – matching OpenSeaDragonViewer.
+        me.rect = {
+            x:x,
+            y:y,
+            width:width,
+            height:height,
+            highlight:highlight,
+            fitHeight:fitHeight
+        };
 
         me.hiResImg.hide();
 
@@ -673,7 +749,13 @@ Ext.define('EdiromOnline.view.window.image.ImageViewer', {
         var diffWidth = 0;
         var diffHeight = 0;
 
-        if((contWidth / width) > (contHeight / height)) {
+        // fitHeight forces the zone height to fill the container and left-aligns it (no centering),
+        // so each part shows its full staff at the common zoom and the measures start at the same x
+        // across the vertically stacked parts in measureBasedView. Otherwise fit to whichever
+        // dimension is more constraining and centre (default, used by the page-based view).
+        if(fitHeight) {
+            me.setSVGZoom((contHeight / height));
+        }else if((contWidth / width) > (contHeight / height)) {
             me.setSVGZoom((contHeight / height));
             diffWidth = Math.round((contWidth - (width * me.zoom)) / 2);
         }else {
@@ -690,10 +772,22 @@ Ext.define('EdiromOnline.view.window.image.ImageViewer', {
             Ext.defer(me.createTempRect, 1000, me, [x, y, width, height], false);
 
         me.calculateHiResImg();
-        
+
         Ext.defer(me.calculateHiResImg, 500, me);
     },
-    
+
+    onResize: function() {
+
+        var me = this;
+
+        // Re-fit the stored rect to the (now final) container size so the zone keeps the same
+        // displayed height across viewers; fall back to a hi-res refresh when nothing is shown.
+        if(me.rect && me.rect != null)
+            me.showRect(me.rect.x, me.rect.y, me.rect.width, me.rect.height, false, me.rect.fitHeight);
+        else
+            me.calculateHiResImg();
+    },
+
     getActualRect: function() {
     
         var me = this;
