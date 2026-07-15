@@ -1,0 +1,67 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# GitHub
+.github
+
+# Documentation
+*.md
+README.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+CITATION.cff
+LICENSE
+
+# Build artifacts (except build/)
+build-euryanthe/
+build-xar/
+node_modules/
+dist/
+
+# Development files
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Test files
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Source files (not needed in Docker context)
+app/
+ext/
+ext-ux/
+packages/
+resources/
+sass/
+
+# Config files
+.editorconfig
+.eslintrc*
+.prettierrc*
+tsconfig.json
+jsconfig.json
+
+# Build scripts (not needed in Docker context)
+build.bat
+build.sh
+build.xml
