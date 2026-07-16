@@ -307,18 +307,16 @@ Ext.define('EdiromOnline.Application', {
                     if (res.ok) {
                         document.body.appendChild(handlerScript);
 
-                        // Create the keycloak handler element
+                        // Create the keycloak handler element and set attributes before connecting it
                         var handlerElement = document.createElement('keycloak-handler');
-                        document.body.appendChild(handlerElement);
-
-                        // Set attributes for the keycloak handler element
                         handlerElement.setAttribute('url', components['edirom_keycloak_handler']['url']);
                         handlerElement.setAttribute('realm', components['edirom_keycloak_handler']['realm']);
                         handlerElement.setAttribute('client-id', components['edirom_keycloak_handler']['client_id']);
                         handlerElement.setAttribute(
-                            'redirect_uri',
-                            components['edirom_keycloak_handler']['redirect_uri'] || (window.location.origin + '/resources/js/edirom-keycloak-handler/silent-check-sso.html')
+                            'redirect-uri',
+                            components['edirom_keycloak_handler']['redirect_uri'] || new URL('resources/js/edirom-keycloak-handler/silent-check-sso.html', window.location.href).href
                         );
+                        document.body.appendChild(handlerElement);
                     } else {
                         console.warn('Failed to load keycloak handler script from:', handlerScript.src, '(HTTP Status:', res.status + ')');
                     }
