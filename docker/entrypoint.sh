@@ -25,37 +25,30 @@ echo "====================================="
 echo "Edirom Online Frontend Configuration"
 echo "====================================="
 
-APP_PATH_PACEHOLDER="/APP_PATH"
-BACKEND_PATH_PACEHOLDER="/BACKEND_PATH"
-BACKEND_URL_PACEHOLDER="/BACKEND_URL"
+APP_PATH_PLACEHOLDER="/APP_PATH"
+BACKEND_PATH_PLACEHOLDER="/BACKEND_PATH"
+BACKEND_URL_PLACEHOLDER="/BACKEND_URL"
 
 # Replace placeholder in build files
-echo "Replacing placeholder '${APP_PATH_PACEHOLDER}' with '${NORMALIZED_PATH}' in built files..."
-echo "Replacing placeholder '${BACKEND_PATH_PACEHOLDER}' with '${BACKEND_PATH}' in built files..."
-echo "Replacing placeholder '${BACKEND_URL_PACEHOLDER}' with '${BACKEND_URL%/}/' in built files..."
+echo "Replacing placeholder '${APP_PATH_PLACEHOLDER}' with '${NORMALIZED_PATH}' in built files..."
+echo "Replacing placeholder '${BACKEND_PATH_PLACEHOLDER}' with '${BACKEND_PATH}' in built files..."
+echo "Replacing placeholder '${BACKEND_URL_PLACEHOLDER}' with '${BACKEND_URL%/}/' in built files..."
 
 find /usr/share/nginx/html \
   -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) -print0 \
 | while IFS= read -r -d '' f; do
-  sed -i "s|${APP_PATH_PACEHOLDER}/|${NORMALIZED_PATH%/}/|g" "$f" # %/ removes trailing slash for correct replacement
-  sed -i "s|${APP_PATH_PACEHOLDER}|${NORMALIZED_PATH}|g" "$f"
-  sed -i "s|${BACKEND_PATH_PACEHOLDER}/|${BACKEND_PATH%/}/|g" "$f" # %/ removes trailing slash for correct replacement
-  sed -i "s|${BACKEND_PATH_PACEHOLDER}|${BACKEND_PATH}|g" "$f"
-  sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL%/}/|g" "$f" # Add trailing slash if not present
+  sed -i "s|${APP_PATH_PLACEHOLDER}/|${NORMALIZED_PATH%/}/|g" "$f"
+  sed -i "s|${APP_PATH_PLACEHOLDER}|${NORMALIZED_PATH}|g" "$f"
+  sed -i "s|${BACKEND_PATH_PLACEHOLDER}/|${BACKEND_PATH%/}/|g" "$f"
+  sed -i "s|${BACKEND_PATH_PLACEHOLDER}|${BACKEND_PATH}|g" "$f"
+  sed -i "s|${BACKEND_URL_PLACEHOLDER}|${BACKEND_URL%/}/|g" "$f"
 done
 
-# replace placeholder in nginx configuration
-sed -i "s|${APP_PATH_PACEHOLDER}/|${NORMALIZED_PATH%/}/|g" /etc/nginx/nginx.conf # %/ removes trailing slash for correct replacement
-sed -i "s|${APP_PATH_PACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
-sed -i "s|${BACKEND_PATH_PACEHOLDER}/|${BACKEND_PATH%/}/|g" /etc/nginx/nginx.conf # %/ removes trailing slash for correct replacement
-sed -i "s|${BACKEND_PATH_PACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
-sed -i "s|${BACKEND_URL_PACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf # No trailing slash for nginx proxy_pass
-
-# remove root redirect when APP_PATH = /
-if [ "${APP_PATH:-/}" = "/" ]; then
-    sed -i '/REDIRECT_BLOCK_START/,/REDIRECT_BLOCK_END/d' /etc/nginx/nginx.conf
-    sed -i 's|alias /usr/share/nginx/html;|root /usr/share/nginx/html;|g' /etc/nginx/nginx.conf
-fi
+# Replace placeholder in nginx configuration
+sed -i "s|${APP_PATH_PLACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
+sed -i "s|${BACKEND_PATH_PLACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
+sed -i "s|${BACKEND_PATH_PLACEHOLDER}/|${BACKEND_PATH%/}/|g" /etc/nginx/nginx.conf
+sed -i "s|${BACKEND_URL_PLACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf
 
 echo "Placeholder replacement completed."
 echo "====================================="
