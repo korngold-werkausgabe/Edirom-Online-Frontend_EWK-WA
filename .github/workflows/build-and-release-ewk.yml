@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - dev-ewk
-      - ftr/ftr/23-dockerimage-release
     tags:
-      - 'v*'
-      - 'release-*'
+      - "v*"
+      - "release-*"
 
 env:
-  IMAGE_NAME: eof-ewk
   IMAGE_NAME_GHCR: ghcr.io/korngold-werkausgabe/eof-ewk:latest
   IMAGE_NAME_DOCKERHUB: ${{ secrets.DOCKERHUB_USERNAME }}/eof-ewk:latest
 
@@ -21,57 +19,51 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+        with:
+          submodules: true
 
-      # --- Build XAR mit Sencha ---
-      - name: Clone sencha-cmd helper
-        run: git clone https://github.com/bwbohl/sencha-cmd.git .sencha-cmd
-
-      - name: Build Sencha-CMD Docker Image
-        run: docker build -t sencha-cmd .sencha-cmd
-
-      - name: Build XAR with build.sh
-        run: docker run --rm -v $PWD:/workspace -w /workspace sencha-cmd bash ./build.sh
-
-      - name: Copy XAR to fixed file name
-        # Passe bei Bedarf den Pfad zur XAR an, falls notwendig
-        run: cp build-xar/*.xar eof-ewk-latest.xar
-
-      # --- Build Dockerimage ---
+      # ------------- Docker Registries Login & Buildx Setup ----------
       - name: Login to GitHub Packages Docker
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image with latest tag
-        run: |
-          docker build -t $IMAGE_NAME_GHCR -t $IMAGE_NAME_DOCKERHUB .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # --- Release XAR ---
-      - name: Upload XAR as Artifact
+      # ------------ Docker Image Build & Push (multiarch) ----------
+      - name: Build and push multiarch image
+        env:
+          IMAGE_NAME_GHCR: ghcr.io/korngold-werkausgabe/eof-ewk:latest
+          IMAGE_NAME_DOCKERHUB: ${{ secrets.DOCKERHUB_USERNAME }}/eof-ewk:latest
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -f docker/Dockerfile \
+            -t $IMAGE_NAME_GHCR \
+            -t $IMAGE_NAME_DOCKERHUB \
+            --push .
+
+      # ---------------- Optional: Build-Artifact ---------------
+      - name: Create eof-ewk-latest.tar.gz
+        run: tar -czf eof-ewk-latest.tar.gz build
+
+      - name: Upload eof-ewk-latest.tar.gz as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eof-ewk-latest.xar
-          path: eof-ewk-latest.xar
+          name: eof-ewk-latest.tar.gz
+          path: eof-ewk-latest.tar.gz
 
-      - name: Upload XAR as Release Asset
+      - name: Upload eof-ewk-latest.tar.gz as Release Asset
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: eof-ewk-latest.xar
-
-      # --- Release Dockerimage ---
-      - name: Push Docker image to GitHub Container Registry
-        run: |
-          docker push $IMAGE_NAME_GHCR
-
-      - name: Push Docker image to DockerHub
-        run: |
-          docker push $IMAGE_NAME_DOCKERHUB
+          files: eof-ewk-latest.tar.gz

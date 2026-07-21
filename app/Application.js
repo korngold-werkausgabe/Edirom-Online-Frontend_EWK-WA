@@ -233,6 +233,7 @@ Ext.define('EdiromOnline.Application', {
             editionCssLink.href = this.backendURL.split('apps/')[0] + me.getController('PreferenceController').getPreference('additional_css_path', true).split("xmldb:exist:///db/")[1];
             document.getElementsByTagName("head")[0].appendChild(editionCssLink);
         }
+        me.loadWebComponents();
     },
     
     initDataStores: function() {
@@ -289,6 +290,38 @@ Ext.define('EdiromOnline.Application', {
         var uris = me.getController('PreferenceController').getPreference('start_documents_uri', true);
         if(uris){
             window.loadLink(uris);
+        }
+    },
+
+    loadWebComponents: function () {
+        var me = this;
+        var components = me.getController('PreferenceController').getPreference('web-components', true);
+
+        if (components) {
+            if (components['edirom_keycloak_handler']) {
+                // Dynamically load the keycloak handler script
+                var handlerScript = document.createElement('script');
+                handlerScript.src = components['edirom_keycloak_handler'].script || 'resources/js/edirom-keycloak-handler/keycloak-handler.js';
+                handlerScript.type = 'module';
+                fetch(handlerScript.src).then((res) => {
+                    if (res.ok) {
+                        document.body.appendChild(handlerScript);
+
+                        // Create the keycloak handler element and set attributes before connecting it
+                        var handlerElement = document.createElement('keycloak-handler');
+                        handlerElement.setAttribute('url', components['edirom_keycloak_handler']['url']);
+                        handlerElement.setAttribute('realm', components['edirom_keycloak_handler']['realm']);
+                        handlerElement.setAttribute('client-id', components['edirom_keycloak_handler']['client_id']);
+                        handlerElement.setAttribute(
+                            'redirect-uri',
+                            components['edirom_keycloak_handler']['redirect_uri'] || new URL('resources/js/edirom-keycloak-handler/silent-check-sso.html', window.location.href).href
+                        );
+                        document.body.appendChild(handlerElement);
+                    } else {
+                        console.warn('Failed to load keycloak handler script from:', handlerScript.src, '(HTTP Status:', res.status + ')');
+                    }
+                }).catch(err => console.error('Error loading keycloak handler script:', error));
+            }
         }
     }
 });

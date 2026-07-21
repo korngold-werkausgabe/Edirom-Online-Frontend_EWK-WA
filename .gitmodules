@@ -10,3 +10,6 @@
 [submodule "resources/js/edirom-navigator"]
 	path = resources/js/edirom-navigator
 	url = https://github.com/Edirom/edirom-navigator.git
+[submodule "resources/js/edirom-keycloak-handler"]
+	path = resources/js/edirom-keycloak-handler
+	url = https://github.com/Edirom/edirom-keycloak-handler.git
