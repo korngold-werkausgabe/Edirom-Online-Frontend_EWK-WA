@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev-ewk
+      - trigger-ewk-actions
     tags:
       - "v*"
       - "release-*"
@@ -24,20 +25,20 @@ jobs:
 
       # ------------- Docker Registries Login & Buildx Setup ----------
       - name: Login to GitHub Packages Docker
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # ------------ Docker Image Build & Push (multiarch) ----------
       - name: Build and push multiarch image
@@ -51,19 +52,3 @@ jobs:
             -t $IMAGE_NAME_GHCR \
             -t $IMAGE_NAME_DOCKERHUB \
             --push .
-
-      # ---------------- Optional: Build-Artifact ---------------
-      - name: Create eof-ewk-latest.tar.gz
-        run: tar -czf eof-ewk-latest.tar.gz build
-
-      - name: Upload eof-ewk-latest.tar.gz as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: eof-ewk-latest.tar.gz
-          path: eof-ewk-latest.tar.gz
-
-      - name: Upload eof-ewk-latest.tar.gz as Release Asset
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: eof-ewk-latest.tar.gz
