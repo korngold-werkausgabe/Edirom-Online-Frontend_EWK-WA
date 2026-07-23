@@ -56,7 +56,14 @@ done
 
 # Replace placeholder in nginx configuration
 sed -i "s|${APP_PATH_PLACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
-sed -i "s|${APP_LOCATION_PLACEHOLDER}|${NORMALIZED_LOCATION}|g" /etc/nginx/nginx.conf
+# Handle APP_LOCATION: replace /APP_LOCATION/ with path+slash to avoid double slashes
+if [ "${NORMALIZED_LOCATION}" = "/" ]; then
+  sed -i "s|${APP_LOCATION_PLACEHOLDER}/|/|g" /etc/nginx/nginx.conf
+  sed -i "s|${APP_LOCATION_PLACEHOLDER}|/|g" /etc/nginx/nginx.conf
+else
+  sed -i "s|${APP_LOCATION_PLACEHOLDER}/|${NORMALIZED_LOCATION}/|g" /etc/nginx/nginx.conf
+  sed -i "s|${APP_LOCATION_PLACEHOLDER}|${NORMALIZED_LOCATION}|g" /etc/nginx/nginx.conf
+fi
 sed -i "s|${BACKEND_PATH_PLACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_URL_PLACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf
 
