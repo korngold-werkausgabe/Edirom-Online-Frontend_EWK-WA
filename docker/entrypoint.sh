@@ -3,6 +3,7 @@ set -e
 
 # Default to root path if not set
 APP_PATH="${APP_PATH:-/}"
+APP_LOCATION="${APP_LOCATION:-/}"
 BACKEND_PATH="${BACKEND_PATH:-/exist}"
 BACKEND_URL="${BACKEND_URL:-http://localhost:8080/exist}"
 
@@ -11,6 +12,11 @@ case "$APP_PATH" in
   ""|"/") NORMALIZED_PATH="/" ;;
   /*)     NORMALIZED_PATH="${APP_PATH%/}" ;;
   *)      NORMALIZED_PATH="/${APP_PATH%/}" ;;
+esac
+case "$APP_LOCATION" in
+  ""|"/") NORMALIZED_LOCATION="/" ;;
+  /*)     NORMALIZED_LOCATION="${APP_LOCATION%/}" ;;
+  *)      NORMALIZED_LOCATION="/${APP_LOCATION%/}" ;;
 esac
 case "$BACKEND_PATH" in
   ""|"/") BACKEND_PATH="/" ;;
@@ -26,11 +32,13 @@ echo "Edirom Online Frontend Configuration"
 echo "====================================="
 
 APP_PATH_PLACEHOLDER="/APP_PATH"
+APP_LOCATION_PLACEHOLDER="/APP_LOCATION"
 BACKEND_PATH_PLACEHOLDER="/BACKEND_PATH"
 BACKEND_URL_PLACEHOLDER="/BACKEND_URL"
 
 # Replace placeholder in build files
 echo "Replacing placeholder '${APP_PATH_PLACEHOLDER}' with '${NORMALIZED_PATH}' in built files..."
+echo "Replacing placeholder '${APP_LOCATION_PLACEHOLDER}' with '${NORMALIZED_LOCATION}' in built files..."
 echo "Replacing placeholder '${BACKEND_PATH_PLACEHOLDER}' with '${BACKEND_PATH}' in built files..."
 echo "Replacing placeholder '${BACKEND_URL_PLACEHOLDER}' with '${BACKEND_URL%/}/' in built files..."
 
@@ -39,6 +47,8 @@ find /usr/share/nginx/html \
 | while IFS= read -r -d '' f; do
   sed -i "s|${APP_PATH_PLACEHOLDER}/|${NORMALIZED_PATH%/}/|g" "$f"
   sed -i "s|${APP_PATH_PLACEHOLDER}|${NORMALIZED_PATH}|g" "$f"
+  sed -i "s|${APP_LOCATION_PLACEHOLDER}/|${NORMALIZED_LOCATION%/}/|g" "$f"
+  sed -i "s|${APP_LOCATION_PLACEHOLDER}|${NORMALIZED_LOCATION}|g" "$f"
   sed -i "s|${BACKEND_PATH_PLACEHOLDER}/|${BACKEND_PATH%/}/|g" "$f"
   sed -i "s|${BACKEND_PATH_PLACEHOLDER}|${BACKEND_PATH}|g" "$f"
   sed -i "s|${BACKEND_URL_PLACEHOLDER}|${BACKEND_URL%/}/|g" "$f"
@@ -46,8 +56,8 @@ done
 
 # Replace placeholder in nginx configuration
 sed -i "s|${APP_PATH_PLACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
+sed -i "s|${APP_LOCATION_PLACEHOLDER}|${NORMALIZED_LOCATION}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_PATH_PLACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
-sed -i "s|${BACKEND_PATH_PLACEHOLDER}/|${BACKEND_PATH%/}/|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_URL_PLACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf
 
 echo "Placeholder replacement completed."
