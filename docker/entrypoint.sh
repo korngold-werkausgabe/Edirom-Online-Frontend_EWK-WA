@@ -3,7 +3,7 @@ set -e
 
 # Default to root path if not set
 APP_PATH="${APP_PATH:-/}"
-APP_LOCATION="${APP_LOCATION:-/}"
+APP_LOCATION="${APP_LOCATION:-.}"
 BACKEND_PATH="${BACKEND_PATH:-/exist}"
 BACKEND_URL="${BACKEND_URL:-http://localhost:8080/exist}"
 
@@ -14,9 +14,9 @@ case "$APP_PATH" in
   *)      NORMALIZED_PATH="/${APP_PATH%/}" ;;
 esac
 case "$APP_LOCATION" in
-  ""|"/") NORMALIZED_LOCATION="/" ;;
-  /*)     NORMALIZED_LOCATION="${APP_LOCATION%/}" ;;
-  *)      NORMALIZED_LOCATION="/${APP_LOCATION%/}" ;;
+  ""|".") NORMALIZED_LOCATION="." ;;
+  /*)     NORMALIZED_LOCATION=".${APP_LOCATION}" ;;
+  *)      NORMALIZED_LOCATION="${APP_LOCATION}" ;;
 esac
 case "$BACKEND_PATH" in
   ""|"/") BACKEND_PATH="/" ;;
@@ -36,36 +36,22 @@ APP_LOCATION_PLACEHOLDER="/APP_LOCATION"
 BACKEND_PATH_PLACEHOLDER="/BACKEND_PATH"
 BACKEND_URL_PLACEHOLDER="/BACKEND_URL"
 
-# Replace placeholder in build files
-echo "Replacing placeholder '${APP_PATH_PLACEHOLDER}' with '${NORMALIZED_PATH}' in built files..."
-echo "Replacing placeholder '${APP_LOCATION_PLACEHOLDER}' with '${NORMALIZED_LOCATION}' in built files..."
-echo "Replacing placeholder '${BACKEND_PATH_PLACEHOLDER}' with '${BACKEND_PATH}' in built files..."
-echo "Replacing placeholder '${BACKEND_URL_PLACEHOLDER}' with '${BACKEND_URL%/}/' in built files..."
+echo "Replacing placeholder '${APP_PATH_PLACEHOLDER}' with '${NORMALIZED_PATH}' in nginx configuration..."
+echo "Replacing placeholder '${APP_LOCATION_PLACEHOLDER}' with '${NORMALIZED_LOCATION}' in nginx configuration..."
+echo "Replacing placeholder '${BACKEND_PATH_PLACEHOLDER}' with '${BACKEND_PATH}' in nginx configuration..."
+echo "Replacing placeholder '${BACKEND_URL_PLACEHOLDER}' with '${BACKEND_URL%/}/' in nginx configuration..."
 
-find /usr/share/nginx/html \
-  -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) -print0 \
-| while IFS= read -r -d '' f; do
-  sed -i "s|${APP_PATH_PLACEHOLDER}/|${NORMALIZED_PATH%/}/|g" "$f"
-  sed -i "s|${APP_PATH_PLACEHOLDER}|${NORMALIZED_PATH}|g" "$f"
-  sed -i "s|${APP_LOCATION_PLACEHOLDER}/|${NORMALIZED_LOCATION%/}/|g" "$f"
-  sed -i "s|${APP_LOCATION_PLACEHOLDER}|${NORMALIZED_LOCATION}|g" "$f"
-  sed -i "s|${BACKEND_PATH_PLACEHOLDER}/|${BACKEND_PATH%/}/|g" "$f"
-  sed -i "s|${BACKEND_PATH_PLACEHOLDER}|${BACKEND_PATH}|g" "$f"
-  sed -i "s|${BACKEND_URL_PLACEHOLDER}|${BACKEND_URL%/}/|g" "$f"
-done
-
-# Replace placeholder in nginx configuration
+# replace placeholder in nginx configuration
 sed -i "s|${APP_PATH_PLACEHOLDER}|${NORMALIZED_PATH}|g" /etc/nginx/nginx.conf
-# Handle APP_LOCATION: replace /APP_LOCATION/ with path+slash to avoid double slashes
-if [ "${NORMALIZED_LOCATION}" = "/" ]; then
-  sed -i "s|${APP_LOCATION_PLACEHOLDER}/|/|g" /etc/nginx/nginx.conf
-  sed -i "s|${APP_LOCATION_PLACEHOLDER}|/|g" /etc/nginx/nginx.conf
-else
-  sed -i "s|${APP_LOCATION_PLACEHOLDER}/|${NORMALIZED_LOCATION}/|g" /etc/nginx/nginx.conf
-  sed -i "s|${APP_LOCATION_PLACEHOLDER}|${NORMALIZED_LOCATION}|g" /etc/nginx/nginx.conf
-fi
+sed -i "s|${APP_LOCATION_PLACEHOLDER}|${NORMALIZED_LOCATION}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_PATH_PLACEHOLDER}|${BACKEND_PATH}|g" /etc/nginx/nginx.conf
 sed -i "s|${BACKEND_URL_PLACEHOLDER}|${BACKEND_URL}|g" /etc/nginx/nginx.conf
+
+# remove root redirect when APP_PATH = /
+if [ "${APP_PATH:-/}" = "/" ]; then
+    sed -i '/REDIRECT_BLOCK_START/,/REDIRECT_BLOCK_END/d' /etc/nginx/nginx.conf
+    sed -i 's|alias /usr/share/nginx/html[^;]*;|root /usr/share/nginx/html/'"${NORMALIZED_LOCATION}"';|g' /etc/nginx/nginx.conf
+fi
 
 echo "Placeholder replacement completed."
 echo "====================================="
