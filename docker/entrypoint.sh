@@ -3,7 +3,7 @@ set -e
 
 # Default to root path if not set
 APP_PATH="${APP_PATH:-/}"
-APP_LOCATION="${APP_LOCATION:-.}"
+APP_LOCATION="${APP_LOCATION:-/}"
 BACKEND_PATH="${BACKEND_PATH:-/exist}"
 BACKEND_URL="${BACKEND_URL:-http://localhost:8080/exist}"
 
@@ -14,9 +14,11 @@ case "$APP_PATH" in
   *)      NORMALIZED_PATH="/${APP_PATH%/}" ;;
 esac
 case "$APP_LOCATION" in
-  ""|".") NORMALIZED_LOCATION="." ;;
-  /*)     NORMALIZED_LOCATION=".${APP_LOCATION}" ;;
-  *)      NORMALIZED_LOCATION="${APP_LOCATION}" ;;
+  ""|"/"|"." ) NORMALIZED_LOCATION="" ;;
+  * )
+    NORMALIZED_LOCATION="${APP_LOCATION#/}"
+    NORMALIZED_LOCATION="${NORMALIZED_LOCATION%/}"
+    ;;
 esac
 case "$BACKEND_PATH" in
   ""|"/") BACKEND_PATH="/" ;;
