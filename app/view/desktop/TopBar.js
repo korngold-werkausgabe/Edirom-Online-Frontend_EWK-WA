@@ -24,9 +24,9 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
         'Ext.form.field.Text'
     ],
 
-    alias : 'widget.topbar',
-	id : 'ediromToolbar',
-	
+    alias: 'widget.topbar',
+    id: 'ediromToolbar',
+
     height: 41,
 
     initComponent: function () {
@@ -38,37 +38,29 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
             cls: 'taskSquareButton home',
             tooltip: { text: getLangString('view.desktop.TaskBar_home'), align: 'tl-bl' }
         });
-        
+
         me.workCombo = Ext.create('Ext.button.Button', {
             text: 'work',
             id: 'workSwitch',
             cls: 'insetButton',
             indent: false,
-            menu : {
-	            maxHeight:500,
+            menu: {
+                maxHeight: 500,
                 items: []
             }
         });
 
         me.searchButton = Ext.create('Ext.button.Button', {
-            id: 'searchBtn',
-            cls: 'taskSquareButton search',
-            tooltip: { text: getLangString('view.desktop.TaskBar_search'), align: 'tl-bl' },
+            html: '<edirom-icon id="icon_search" role="button" name="search" title="' + getLangString('view.desktop.TaskBar_search') + '"></edirom-icon>',
+            baseCls: 'edirom-icon-button',
             action: 'openSearchWindow'
-        });
-
-        me.aboutButton = Ext.create('Ext.button.Button', {
-            id: 'aboutBtn',
-            cls: 'taskLinkButton about',
-            text: getLangString('view.desktop.TaskBar_about'),
-            action: 'openAboutWindow'
         });
 
         me.searchTextField = Ext.create('Ext.form.TextField', {
             width: 180,
             id: 'searchTextFieldTop'
         });
-        
+
         me.searchButton.textField = me.searchTextField;
 
         me.webSocket = Ext.create('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {});
@@ -78,22 +70,22 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
                 flex: 1,
                 cls: 'ux-desktop-topbar-flex',
                 items: [
-                        me.homeButton,
-                        { xtype: 'tbtext', text: getLangString('view.desktop.TopBar_homeBtnLabel'), id: 'homeBtnLabel' },
-                        this.workCombo,
-                        {
-                            xtype: 'splitter',
-                            html: '&#160;',
-                            height: 14,
-                            width: 2, //TODO - there should be a CSS way here
-                            cls: 'x-toolbar-separator x-toolbar-separator-horizontal ediTopBarSep'
-                        },
-                    	me.workCombo,
-                        '->',
-                        me.searchTextField,
+                    me.homeButton,
+                    { xtype: 'tbtext', text: getLangString('view.desktop.TopBar_homeBtnLabel'), id: 'homeBtnLabel' },
+                    this.workCombo,
+                    {
+                        xtype: 'splitter',
+                        html: '&#160;',
+                        height: 14,
+                        width: 2, //TODO - there should be a CSS way here
+                        cls: 'x-toolbar-separator x-toolbar-separator-horizontal ediTopBarSep'
+                    },
+                    me.workCombo,
+                    '->',
+                    me.searchTextField,
                     me.searchButton,
                     me.webSocket,
-                        me.aboutButton
+                    me.aboutButton
                 ]
             })
         ];
