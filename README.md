@@ -61,6 +61,7 @@ Available properties for override:
 - `backend.host` (default: `localhost`)
 - `backend.port` (default: `8080`)
 - `backend.path` (default: `/exist/apps/Edirom-Online-Backend/`)
+- `ws.url` (default: empty — WebSocket features disabled)
 - `project.version` (default: `1.4.0`)
 - `project.app` (default: `Edirom-Online-Frontend`)
 - `project.title` (default: `Edirom-Online Frontend`)
@@ -76,6 +77,7 @@ Example `local.properties`:
 backend.protocol=https
 backend.host=my-custom-host
 backend.port=9090
+ws.url=wss://example.com/ws
 project.version=2.0.0
 ```
 

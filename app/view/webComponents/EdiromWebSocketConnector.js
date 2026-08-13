@@ -30,6 +30,14 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
     initComponent: function () {
         var me = this;
 
+        // Read the WebSocket server URL from the runtime configuration (config.json).
+        // When it is empty, the WebSocket features are disabled.
+        var wsUrl = EdiromOnline.getApplication().getController('ConfigController').getConfig('wsURL');
+
+        if (!wsUrl) {
+            me.hidden = true;
+        }
+
         let webSocketJsElement = document.createElement("script");
         webSocketJsElement.setAttribute("defer", "defer");
         console.log("Setting web socket connector script src");
@@ -40,7 +48,9 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
 
 
 
-        me.html = `<edirom-web-socket id="web-socket"></edirom-web-socket>`;
+        var wsUrlAttribute = wsUrl ? ` ws-url="${wsUrl}"` : '';
+
+        me.html = `<edirom-web-socket id="web-socket"${wsUrlAttribute}></edirom-web-socket>`;
 
         me.callParent();
 
