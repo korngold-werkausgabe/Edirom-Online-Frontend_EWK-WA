@@ -42,8 +42,6 @@ Ext.define('EdiromOnline.controller.webComponents.EdiromWebSocketConnector', {
 
         var app = me.application;
         me.ediromWebSocketConnector = document.querySelector("#web-socket");
-        console.log("Element:");
-        console.log(me.ediromWebSocketConnector);
         me.ediromWebSocketConnector.addEventListener('received-message', function (e) {
             console.log("Received Event!");
             console.log("detail:");

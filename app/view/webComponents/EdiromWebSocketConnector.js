@@ -30,6 +30,9 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
     initComponent: function () {
         var me = this;
 
+        me.width = 40;
+        me.height = 41;
+
         // Read the WebSocket server URL from the runtime configuration (config.json).
         // When it is empty, the WebSocket features are disabled.
         var wsUrl = EdiromOnline.getApplication().getController('ConfigController').getConfig('wsURL');
@@ -42,15 +45,23 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
         webSocketJsElement.setAttribute("defer", "defer");
         console.log("Setting web socket connector script src");
 
-        webSocketJsElement.setAttribute("src", "resources/web-components/edirom-web-socket-connector/edirom-web-socket-connector.js")
+        webSocketJsElement.setAttribute("src", "resources/js/edirom-web-socket-connector/edirom-web-socket-connector.js")
+        webSocketJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(webSocketJsElement);
-
-
-
 
         var wsUrlAttribute = wsUrl ? ` ws-url="${wsUrl}"` : '';
 
-        me.html = `<edirom-web-socket id="web-socket"${wsUrlAttribute}></edirom-web-socket>`;
+
+
+        me.html = `<edirom-web-socket-connector id="web-socket"${wsUrlAttribute}></edirom-web-socket-connector>`;
+        me.style = {
+            "--primary-color": "#000000",
+            "--secondary-color": "#cacaca",
+            "--tertiary-color": "#faf6f0",
+            "--quaternary-color": "#333333"
+        };
+
+
 
         me.callParent();
 
