@@ -16,6 +16,9 @@
 [submodule "resources/js/edirom-qr-code-scanner"]
 	path = resources/js/edirom-qr-code-scanner
 	url = https://github.com/Edirom/edirom-qr-code-scanner
+[submodule "mobile"]
+	path = mobile
+	url = https://github.com/DennisFriedl/edirom-mobile
 [submodule "resources/js/edirom-web-socket-connector"]
 	path = resources/js/edirom-web-socket-connector
 	url = https://github.com/Edirom/edirom-web-socket-connector
