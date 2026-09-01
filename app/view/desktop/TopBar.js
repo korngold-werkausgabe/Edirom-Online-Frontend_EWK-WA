@@ -63,6 +63,12 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
         
         me.searchButton.textField = me.searchTextField;
 
+        me.switchToMobileButton = Ext.create('Ext.button.Button', {
+            html: '<edirom-icon id="icon_switchToMobile" role="button" name="devices" title="' + getLangString('view.desktop.TaskBar_switchToMobile') + '"></edirom-icon>',
+            baseCls: 'edirom-icon-button',
+            action: 'switchToMobile'
+        });
+
         me.items = [
             new Ext.toolbar.Toolbar({
                 flex: 1,
@@ -81,7 +87,8 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
                     	me.workCombo,
                         '->',
                         me.searchTextField,
-                        me.searchButton
+                        me.searchButton,
+                        me.switchToMobileButton
                 ]
             })
         ];
