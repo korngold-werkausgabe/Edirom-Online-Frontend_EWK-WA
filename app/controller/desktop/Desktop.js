@@ -34,6 +34,9 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
             'topbar button[action=openSearchWindow]': {
                 click: this.onOpenSearchWindow
             },
+            'topbar button[action=switchToMobile]': {
+                click: this.onSwitchToMobile
+            },
             'taskbar button[action=openAboutWindow]': {
                 click: this.onOpenAboutWindow
             },
@@ -100,6 +103,17 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
     onOpenAboutWindow: function(button, event, args) {
         var me = this;
         me.desktop.openAboutWindow();
+    },
+
+    onSwitchToMobile: function() {
+        localStorage.setItem('edirom-ui-mode', 'mobile');
+
+        var params = new URLSearchParams();
+        params.set('ui', 'mobile');
+        if (this.application.activeEdition) params.set('edition', this.application.activeEdition);
+        if (this.application.activeWork) params.set('work', this.application.activeWork);
+
+        window.location.href = 'mobile/index.html?' + params.toString();
     },
 
     switchDesktop: function(desk) {
