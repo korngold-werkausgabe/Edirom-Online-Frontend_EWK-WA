@@ -63,6 +63,12 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
 
         me.searchButton.textField = me.searchTextField;
 
+        me.switchToMobileButton = Ext.create('Ext.button.Button', {
+            html: '<edirom-icon id="icon_switchToMobile" role="button" name="devices" title="' + getLangString('view.desktop.TaskBar_switchToMobile') + '"></edirom-icon>',
+            baseCls: 'edirom-icon-button',
+            action: 'switchToMobile'
+        });
+
         me.webSocket = Ext.create('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {});
 
         me.items = [
@@ -84,6 +90,7 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
                     '->',
                     me.searchTextField,
                     me.searchButton,
+                    me.switchToMobileButton,
                     me.webSocket,
                     me.aboutButton
                 ]
