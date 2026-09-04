@@ -47,6 +47,15 @@
         <antcall target="clean"/>
     </target>
 
+    <!-- Regenerate the SCSS colour palette from resources/css/eo-palette.css
+         (the canonical CSS custom properties) before Compass runs. Uses the same
+         ruby that Compass itself runs on two steps later. -->
+    <target name="-before-sass">
+        <exec executable="ruby" dir="${basedir}" failonerror="true">
+            <arg value="bin/gen-eo-palette.rb"/>
+        </exec>
+    </target>
+
     <target name="-clean">
         <delete dir="${build.temp.dir}"/>
         <delete includeemptydirs="true">

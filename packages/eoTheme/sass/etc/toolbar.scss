@@ -1,6 +1,9 @@
 /***Toolbar Buttons***/
 
-$base-color: #666666;
+// NB: this unconditionally overrides $base-color (set with !default in
+// var/Component.scss) before the framework compiles — legacy, but removing it
+// is a visible change, so it stays. Value kept identical (= #666666).
+$base-color: lighten($eo-primary, 20%);
 $label_baseFont: 'Open Sans', Arial, sans-serif;
 
 /*#ediromToolbar {

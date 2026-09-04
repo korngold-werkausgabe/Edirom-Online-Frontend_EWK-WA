@@ -1,5 +1,5 @@
-$metaBox_bg: #e5e5e5;
-$pFlow_bg: #666666;
+$metaBox_bg: lighten($eo-secondary, 10%);
+$pFlow_bg: lighten($eo-primary, 20%);
 
 $ui_baseFont: 'Open Sans', 'Courier New', Courier, sans-serif;
 $ui_baseFont_size: 14px;
@@ -8,7 +8,7 @@ $content_baseFont_size: 14px;
 
 .annotationList {
 	.x-panel-header-default {
-		@include background(linear-gradient(top,#ffffff,#e5e5e5));
+		@include background(linear-gradient(top,$eo-tertiary,lighten($eo-secondary, 10%)));
 	}
 	
 	.x-grid-row-selected .x-grid-cell, .x-grid-row-selected .x-grid-rowwrap-div {
@@ -27,7 +27,7 @@ $content_baseFont_size: 14px;
 	margin: 10px;
 	
 	.metaBox {
-		border: 1px solid #999999;
+		border: 1px solid lighten($eo-primary, 40%);
 		
 		@include background(linear-gradient(top, $metaBox_bg, darken($metaBox_bg, 20%)));
 		@include border-radius(5px, 5px);
@@ -50,7 +50,7 @@ $content_baseFont_size: 14px;
 			.key {
 				padding-right: 0px;
 				font-size: $ui_baseFont_size * 0.8;
-				color: #777777 !important;
+				color: lighten($eo-primary, 27%) !important;
 				font-weight: 300;
 			}
 			.value {
@@ -59,7 +59,7 @@ $content_baseFont_size: 14px;
 				
 				.pLink {
 					text-decoration: none;
-					color: #666666;
+					color: lighten($eo-primary, 20%);
 				}
 			}
 			
@@ -93,7 +93,7 @@ $content_baseFont_size: 14px;
 	}
 	
 	.previewArea {
-		@include background(linear-gradient(top, #666666 0%, #cccccc 75%, #999999 100%));
+		@include background(linear-gradient(top, lighten($eo-primary, 20%) 0%, $eo-secondary 75%, lighten($eo-primary, 40%) 100%));
 		@include border-radius(5px, 5px);
 		@include box-shadow(0 1px 6px #000000 inset);
 		
@@ -140,7 +140,7 @@ $content_baseFont_size: 14px;
 				text-align: center;
 				font-family: $ui_baseFont;
 				font-size: $ui_baseFont_size * 0.7;
-				color: #ffffff;
+				color: $eo-tertiary;
 			}
 		}
 		
@@ -163,7 +163,7 @@ $content_baseFont_size: 14px;
 	width: 100% !important; 
 	.metaBox {
 		display: none;
-		border: 1px solid #999999;
+		border: 1px solid lighten($eo-primary, 40%);
 		width: 100% !important;
 
 		
@@ -188,7 +188,7 @@ $content_baseFont_size: 14px;
 			.key {
 				padding-right: 0px;
 				font-size: $ui_baseFont_size * 0.8;
-				color: #777777 !important;
+				color: lighten($eo-primary, 27%) !important;
 				font-weight: 300;
 			}
 			.value {
@@ -197,7 +197,7 @@ $content_baseFont_size: 14px;
 				
 				.pLink {
 					text-decoration: none;
-					color: #666666;
+					color: lighten($eo-primary, 20%);
 				}
 			}
 			
@@ -271,7 +271,7 @@ $content_baseFont_size: 14px;
 				text-align: center;
 				font-family: $ui_baseFont;
 				font-size: $ui_baseFont_size * 0.7;
-				color: #ffffff;
+				color: $eo-tertiary;
 			}
 		}
 		
@@ -280,19 +280,19 @@ $content_baseFont_size: 14px;
 }
 
 .annotationView .x-splitter-vertical {
-	background-image: -moz-radial-gradient(50% 50% , ellipse cover, #999999, #ffffff 50%);
+	background-image: -moz-radial-gradient(50% 50% , ellipse cover, lighten($eo-primary, 40%), $eo-tertiary 50%);
 	cursor: ew-resize;
 }
 
 .annotationView .x-splitter-horizontal {
-	background-image: -moz-radial-gradient(50% 50% , ellipse cover, #999999, #ffffff 50%);
+	background-image: -moz-radial-gradient(50% 50% , ellipse cover, lighten($eo-primary, 40%), $eo-tertiary 50%);
 	cursor: ns-resize;
 }
 
 .annotationView .previewArea .previewItem .txtBox {
-    background-color: white;
+    background-color: $eo-tertiary;
     bottom: 30px;
-    box-shadow: 0 0 5px #333333;
+    box-shadow: 0 0 5px $eo-primary;
     left: 10px;
     padding: 4px;
     position: absolute;

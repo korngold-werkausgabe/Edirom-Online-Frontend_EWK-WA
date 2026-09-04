@@ -8,8 +8,8 @@
 			margin-top: 10px;
 			padding: 1px 8px;
 			border-radius: 3px;
-			background: -webkit-linear-gradient(top, #f5f5f5, #e5e5e5);
-			box-shadow: 0 1px 2px #666666;
+			background: -webkit-linear-gradient(top, lighten($eo-secondary, 16%), lighten($eo-secondary, 10%));
+			box-shadow: 0 1px 2px lighten($eo-primary, 20%);
 			margin-top: 20px;
 		}
 		
@@ -30,7 +30,7 @@
 		}
 		
 		.resultCount {
-			color: #666666;
+			color: lighten($eo-primary, 20%);
 			font-size: 80%;
 		}
 	}
@@ -45,20 +45,20 @@
 	}
 	
 	.hitP {
-		border-left: 3px solid #e5e5e5;
+		border-left: 3px solid lighten($eo-secondary, 10%);
 		padding-left: 0;
 		margin-left: 5px;
 	}
 	
 	.x-toolbar {
-		background: -webkit-linear-gradient(top, #e5e5e5, #cccccc);
-		border-bottom: 1px solid #999999;
+		background: -webkit-linear-gradient(top, lighten($eo-secondary, 10%), $eo-secondary);
+		border-bottom: 1px solid lighten($eo-primary, 40%);
 		
 		.x-form-text {
 			border-radius: 5px;
 			padding: 0 5px;
-			border: 1px solid #999999;
-			box-shadow: 0 0 1px #666666 inset;
+			border: 1px solid lighten($eo-primary, 40%);
+			box-shadow: 0 0 1px lighten($eo-primary, 20%) inset;
 			font-size: 90%;
 		}
 	}
@@ -68,7 +68,7 @@
 		
 		&.over {
 			background-position: 0 -2px !important;
-			border-color: #999999;
+			border-color: lighten($eo-primary, 40%);
 		}
 	}
 	
@@ -80,7 +80,7 @@
 			display: inline-block;
 			padding: 0 3px;
 			border-radius: 3px;
-			background: -webkit-linear-gradient(top, #e5e5e5, #cccccc);
+			background: -webkit-linear-gradient(top, lighten($eo-secondary, 10%), $eo-secondary);
 		}
 	}
 	
@@ -90,7 +90,7 @@
 	}
 	
 	.showMore {
-		color: #666666;
+		color: lighten($eo-primary, 20%);
 		font-size: 85%;
 		margin: 5px 0 15px 5px;
 		cursor: pointer;

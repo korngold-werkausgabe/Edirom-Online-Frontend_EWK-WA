@@ -1,5 +1,9 @@
-$base-color: #e5e5e5 !default;
-$color: #333333 !default;
+// Colour anchors — see sass/etc/eo-palette.scss. Every colour in eoTheme is one
+// of the four $eo-* tokens or a Sass expression over them.
+$base-color: lighten($eo-secondary, 10%) !default;    // ~= #e5e5e5 (nominal; shadowed to #666 by etc/toolbar.scss)
+$color: $eo-primary !default;                         // #333333
+$neutral-color: mix($eo-tertiary, $eo-secondary, 42%) !default;  // = #e1e1e1 — Neptune borders / disabled / grid header / body bg
+$panel-body-background-color: $eo-tertiary !default;  // #fff (was ext-theme-neutral default)
 $font-family: 'PT Sans','Open Sans','Courier New','Helvetica Neue',Helvetica,'Myriad Pro',ScalaSans,Arial,sans-serif !default;
 
 .textCentered {

@@ -1,6 +1,6 @@
-$toolbar-background-color: #cccccc !default;
+$toolbar-background-color: $eo-secondary !default;
 $toolbar-background-gradient: 'bevel';
-$toolbar-separator-color: darken($base-color, 40%);
+$toolbar-separator-color: darken($base-color, 40%);   // $base-color is token-derived (see eo-palette.scss / etc/toolbar.scss)
 
 /*$toolbar-background-color: #333333 !default;
 $toolbar-background-gradient: 'bevel';
@@ -41,10 +41,15 @@ $toolbar-separator-color: lighten($base-color, 40%);*/
 }
 /* Coppied from todo.css */
 
+// stops were #dddddd / #c3c3c3 / #b8b8b8 / #a0a0a0 — now derived from $eo-secondary
+$eo-inset-1: lighten($eo-secondary, 7%);
+$eo-inset-2: darken($eo-secondary, 4%);
+$eo-inset-3: darken($eo-secondary, 8%);
+$eo-inset-4: darken($eo-secondary, 17%);
 #ediromToolbar .x-btn.insetButton.x-btn-default-toolbar-small {
-    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #dddddd), color-stop(30%, #c3c3c3), color-stop(65%, #b8b8b8), color-stop(100%, #a0a0a0));
-    background-image: -webkit-linear-gradient(top, #dddddd, #c3c3c3 30%, #b8b8b8 65%, #a0a0a0);
-    background-image: -moz-linear-gradient(top, #dddddd, #c3c3c3 30%, #b8b8b8 65%, #a0a0a0);
-    background-image: -o-linear-gradient(top, #dddddd, #c3c3c3 30%, #b8b8b8 65%, #a0a0a0);
-    background-image: linear-gradient(top, #dddddd, #c3c3c3 30%, #b8b8b8 65%, #a0a0a0);
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, $eo-inset-1), color-stop(30%, $eo-inset-2), color-stop(65%, $eo-inset-3), color-stop(100%, $eo-inset-4));
+    background-image: -webkit-linear-gradient(top, $eo-inset-1, $eo-inset-2 30%, $eo-inset-3 65%, $eo-inset-4);
+    background-image: -moz-linear-gradient(top, $eo-inset-1, $eo-inset-2 30%, $eo-inset-3 65%, $eo-inset-4);
+    background-image: -o-linear-gradient(top, $eo-inset-1, $eo-inset-2 30%, $eo-inset-3 65%, $eo-inset-4);
+    background-image: linear-gradient(top, $eo-inset-1, $eo-inset-2 30%, $eo-inset-3 65%, $eo-inset-4);
 }

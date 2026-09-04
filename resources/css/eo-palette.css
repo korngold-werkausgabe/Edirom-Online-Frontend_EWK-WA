@@ -1,0 +1,29 @@
+/*
+ * Edirom colour palette — the single source of truth.
+ *
+ * These CSS custom properties are for hand-authored Edirom CSS (this folder),
+ * per-edition `additional_css_path` stylesheets, and shadow-DOM web components.
+ * Loaded first in index.html so everything downstream can `var(--eo-*)`.
+ *
+ * The ExtJS / Neptune theme is compiled by Sencha/Compass, which cannot consume
+ * `var(--x)`. So build.xml regenerates `packages/eoTheme/sass/etc/eo-palette.scss`
+ * (Sass `$eo-*` variables) from this file before every Sass compile — edit the
+ * colours HERE, not in the .scss.
+ *
+ * The five values below are the stock grey/chrome Edirom-Frontend theme. The
+ * "default" note on each line is that stock value — change a value to re-theme,
+ * and use the note to get back. Run a build (or `ruby bin/gen-eo-palette.rb`) to
+ * propagate a change into the .scss.
+ */
+:root {
+  --eo-primary: #333333; /* ink / body text        - default #333333 */
+  --eo-secondary: #cccccc; /* dominant chrome fill    - default #cccccc */
+  --eo-tertiary: #ffffff; /* panel / window body     - default #ffffff */
+  --eo-highlight: #f9d76e; /* active item / selection - default #f9d76e */
+  --eo-background: #586e75; /* desktop wallpaper       - default #586e75 */
+
+  /* Alias under the generic name shadow-DOM web components read (edirom-icon
+     button hover/pressed, edirom-web-socket-connector, ...). bin/gen-eo-palette.rb
+     only reads the --eo-* names above; this line is ignored by it. */
+  --secondary-color: var(--eo-secondary);
+}

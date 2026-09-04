@@ -32,7 +32,7 @@ span.searchResult {
 }
 
 .subProperty .subkey {
-    color: #737373;
+    color: lighten($eo-primary, 25%);   // #737373
     float: left;
     margin: 0 0 10px;
     text-align: right;
@@ -52,7 +52,7 @@ span.searchResult {
 
 
 .subProperty .subkey .date, .subProperty .subkey .unit, .subProperty .subkey .label {
-    color: #a6a6a6;
+    color: lighten($eo-primary, 45%);   // #a6a6a6
     display: block;
     font-size: 12px;
     font-weight: 100;
@@ -60,7 +60,7 @@ span.searchResult {
 }
 
 .property .key .date, .property .key .unit, .property .key .label {
-    color: #a6a6a6;
+    color: lighten($eo-primary, 45%);   // #a6a6a6
     display: block;
     font-size: 12px;
     font-weight: 100;
@@ -96,13 +96,13 @@ span.italic {
 }
 
 #navigator .navigatorCategoryTitle2 {
-    color: #4d4d4d;
+    color: lighten($eo-primary, 10%);   // #4d4d4d
     cursor: pointer;
     font-variant: inherit;
     padding: 0 0 2px;
 }
 #navigator .navigatorItem2 {
-    color: black;
+    color: darken($eo-primary, 20%);   // black
     cursor: pointer;
     padding: 0 0 2px 10px;
 }
@@ -118,12 +118,12 @@ z-index: 1;
 .partInner {
 font-size: 13px;
 font-weight: bold;
-background-image: -moz-linear-gradient(top, rgba(255, 255, 255,0.9),rgba(255, 255, 255,0.8)) !important;
-background-image: -webkit-linear-gradient(top, rgba(255, 255, 255,0.9),rgba(255, 255, 255,0.8)) !important;
+background-image: -moz-linear-gradient(top, rgba($eo-tertiary,0.9),rgba($eo-tertiary,0.8)) !important;
+background-image: -webkit-linear-gradient(top, rgba($eo-tertiary,0.9),rgba($eo-tertiary,0.8)) !important;
 box-shadow: 3px 3px 5px rgba(0,0,0,0.7);
 padding: 2px 5px;
 border-radius: 5px;
-color: rgba(0,0,0,0.75);
+color: rgba(darken($eo-primary, 20%),0.75);
 position: absolute;
 top: 5px;
 left: 10px;
@@ -131,7 +131,7 @@ left: 10px;
 
 
 div.annotation.combinedHighlight div.annotIcon {
-    border: 1px solid white;
+    border: 1px solid $eo-tertiary;
 }
 #workSwitch {
 	padding-left: 10px !important;
@@ -143,19 +143,21 @@ div.annotation.combinedHighlight div.annotIcon {
 }
 
 #workSwitch:hover {
-	box-shadow: 1px 2px 4px rgb(23, 94, 160);
+	box-shadow: 1px 2px 4px $eo-primary;   // was rgb(23,94,160)
 	border-radius: 20px;
 	}
 
 span#workSwitch-btnInnerEl:before {
-	color: rgb(23, 94, 160);
+	color: $eo-primary;   // was rgb(23,94,160)
 	font-family: FontAwesome;
 	content: '\f054 ';
 	padding-right: 5px;
 	font-size: 10px;
 }
 
+// was a hard rgb(36,145,235) blue that overrode the theme's own
+// $menu-item-active-background-color; now follows $eo-highlight.
 .x-menu-item-active {
-    background-color: rgb(36, 145, 235) !important;
-    color: rgb(161, 209, 247) !important;
+    background-color: $eo-highlight !important;
+    color: darken($eo-primary, 20%) !important;
 }

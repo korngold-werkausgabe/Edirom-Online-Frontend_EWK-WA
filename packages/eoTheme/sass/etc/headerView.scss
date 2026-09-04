@@ -1,5 +1,5 @@
 .headerView > .x-panel-body {
-	box-shadow: 0 1px 2px #333333 inset;
+	box-shadow: 0 1px 2px $eo-primary inset;
 }
 
 .headerViewContent {
@@ -17,14 +17,14 @@
 			float: left;
 			width: 180px;
 			clear: both;
-			color: lighten(#000000, 45%);
+			color: lighten($eo-primary, 25%);   // #737373
 			margin: 0 0 10px;
 			
 			.date, .unit {
 				display: block;
 				font-size: 12px;
 				line-height: 12px;
-				color: lighten(#000000, 65%);
+				color: lighten($eo-primary, 45%);   // #a6a6a6
 				font-weight: 100;
 			}
 		}

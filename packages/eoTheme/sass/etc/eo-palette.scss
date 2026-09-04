@@ -1,0 +1,9 @@
+// AUTO-GENERATED from resources/css/eo-palette.css - do not edit.
+// Change the colours in that .css file; build.xml regenerates this before
+// every Sass compile (or run `ruby bin/gen-eo-palette.rb` by hand).
+
+$eo-primary: #333333 !default;  // ink / body text - default #333333
+$eo-secondary: #cccccc !default;  // dominant chrome fill - default #cccccc
+$eo-tertiary: #ffffff !default;  // panel / window body - default #ffffff
+$eo-highlight: #f9d76e !default;  // active item / selection - default #f9d76e
+$eo-background: #586e75 !default;  // desktop wallpaper - default #586e75

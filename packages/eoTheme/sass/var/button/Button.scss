@@ -7,15 +7,15 @@ $button-small-text-padding: 5px !default;
 $button-medium-text-padding: 8px !default;
 $button-large-text-padding: 10px !default;
 
-$button-toolbar-color: #000000;
-$button-toolbar-background-color: darken($base-color,35%);
+$button-toolbar-color: darken($eo-primary, 20%);   // #000
+$button-toolbar-background-color: darken($base-color,35%);   // $base-color is token-derived
 $button-toolbar-background-gradient: 'bevel';
 $button-toolbar-background-gradient-disabled: 'matte';
 $button-toolbar-background-gradient-focus: 'bevel';
 $button-toolbar-background-gradient-over: 'bevel';
 $button-toolbar-background-gradient-pressed: 'matte';
 
-$edirom-taskbarWindowButton-background-color: #cccccc;
+$edirom-taskbarWindowButton-background-color: $eo-secondary;
 
 .taskSquareButton {
 	width: 24px;
@@ -35,22 +35,22 @@ $edirom-taskbarWindowButton-background-color: #cccccc;
 
 	.x-btn-inner {
 	    font-size: 10px;
-	    color: #666;
+	    color: lighten($eo-primary, 20%);   // #666
 	    padding: 4px 3px;
 	}
 }
 
 .taskLinkButton.about {
-	border: 1px solid #949393;
-	background-image: -webkit-linear-gradient(top, #adadad, #a79b9b 48%, #979797 52%, #c3c2c2);
+	border: 1px solid darken($eo-secondary, 22%);   // ~= #949393
+	background-image: -webkit-linear-gradient(top, darken($eo-secondary, 12%), darken($eo-secondary, 16%) 48%, darken($eo-secondary, 21%) 52%, darken($eo-secondary, 4%));
 }
 
 .taskLinkButton.about:hover {
-	background-image: -webkit-linear-gradient(top, #cdcdcd, #c5c5c5 48%, #c3c3c3 52%, #d3d2d2);
+	background-image: -webkit-linear-gradient(top, $eo-secondary, darken($eo-secondary, 3%) 48%, darken($eo-secondary, 4%) 52%, lighten($eo-secondary, 3%));
 }
 
 .x-btn-default-toolbar-small.x-pressed {
-    background-color: #A3A3A3 !important;
+    background-color: darken($eo-secondary, 16%) !important;   // ~= #a3a3a3
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4) inset;
 }
 
@@ -68,7 +68,7 @@ $edirom-taskbarWindowButton-background-color: #cccccc;
 
 	&.x-pressed {
 		box-shadow: 0 1px 1px #000000 inset;
-		background-color: #e1e1e1;
+		background-color: $neutral-color;   // #e1e1e1
 	}
 }
 
@@ -111,7 +111,7 @@ $edirom-taskbarWindowButton-background-color: #cccccc;
 }
 
 #homeBtnLabel {
-	color: #666666;
+	color: lighten($eo-primary, 20%);   // #666
 	font-size: 16px;
 	line-height: 15px;
 	padding: 0 20px 0 0;

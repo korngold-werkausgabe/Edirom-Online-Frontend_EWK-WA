@@ -1,5 +1,5 @@
 .textView > .x-panel-body {
-	box-shadow: 0 1px 2px #666666 inset;
+	box-shadow: 0 1px 2px lighten($eo-primary, 20%) inset;   // #666
 	padding: 0;
 }
 
@@ -189,7 +189,7 @@
 	/*Tables*/
 		td.label, tr.label td {
 			font-weight: bold;
-			background-color: #aaaaaa;
+			background-color: darken($eo-secondary, 13%);   // ~= #aaa
 		}
 		
 	/*Line groups and lines*/
