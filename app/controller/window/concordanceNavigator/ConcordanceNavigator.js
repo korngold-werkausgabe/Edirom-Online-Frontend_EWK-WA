@@ -60,8 +60,22 @@ Ext.define('EdiromOnline.controller.window.concordanceNavigator.ConcordanceNavig
 
         me.ediromConcordanceNavigator = document.querySelector(`#${win.id}-concordance-navigator`);
         me.ediromConcordanceNavigator.addEventListener('connection-changed', function (e) {
+            console.log("Connection changed");
+            console.log(e.detail);
             var plist = e.detail.plist;
             loadLink(plist, { useExisting: true, onlyExisting: true });
+
+            // Broadcast to other WebSocket session clients, unless this change was itself
+            // applied because of an incoming remote update (see applyRemoteConnection below) -
+            // otherwise we'd immediately echo it straight back out.
+            if (me.suppressBroadcast) {
+                me.suppressBroadcast = false;
+            } else {
+                var wsConnector = me.application.getController('webComponents.EdiromWebSocketConnector');
+                if (wsConnector) {
+                    wsConnector.broadcastConnection(e.detail.connectionId);
+                }
+            }
         });
         me.ediromConcordanceNavigator.addEventListener('changed-play-pause-status', function (e) {
             // Or should it's own controller be responsible for this?
@@ -74,6 +88,23 @@ Ext.define('EdiromOnline.controller.window.concordanceNavigator.ConcordanceNavig
         me.ediromConcordanceNavigator.addEventListener('layout-change', function (e) {
             win.updateLayout();
         });
+    },
+
+    /**
+     * Navigates the concordance navigator to a connection received via the WebSocket
+     * session sync, without re-broadcasting it back out (see the `connection-changed`
+     * listener in onWindowRendered).
+     */
+    applyRemoteConnection: function (connectionId) {
+        var me = this;
+        if (!me.ediromConcordanceNavigator || !connectionId) return;
+        me.suppressBroadcast = true;
+        var navigated = me.ediromConcordanceNavigator.navigateToConnectionById(connectionId);
+        if (!navigated) {
+            // No connection-changed event will fire for this attempt; clear the flag
+            // immediately so it doesn't suppress the next real, local broadcast.
+            me.suppressBroadcast = false;
+        }
     },
 
     /**

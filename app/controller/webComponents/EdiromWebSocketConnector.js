@@ -46,9 +46,33 @@ Ext.define('EdiromOnline.controller.webComponents.EdiromWebSocketConnector', {
             console.log("Received Event!");
             console.log("detail:");
             console.log(e.detail);
-            var plist = e.detail.links;
+            var detail = e.detail || {};
+
+            if (detail.type === 'syncState') {
+                var connectionId = detail.payload && detail.payload.connection;
+                if (!connectionId) return;
+                var concordanceNavigatorController = app.getController('window.concordanceNavigator.ConcordanceNavigator');
+                if (concordanceNavigatorController) {
+                    concordanceNavigatorController.applyRemoteConnection(connectionId);
+                }
+                return;
+            }
+
+            var plist = detail.links;
+            if (!plist) return;
             var linkController = app.getController('LinkController');
             linkController.loadLink(plist, { useExisting: true, onlyExisting: false, sort: "sortHorizontally" });
         });
+    },
+
+    /**
+     * Broadcasts this client's current concordance connection to the other clients
+     * in the WebSocket session, using the same "syncState" message shape edirom-mobile
+     * sends/expects (`{ connection: connectionId }`).
+     */
+    broadcastConnection: function (connectionId) {
+        var me = this;
+        if (!me.ediromWebSocketConnector) return;
+        me.ediromWebSocketConnector.sendMessage('syncState', { connection: connectionId });
     },
 });
