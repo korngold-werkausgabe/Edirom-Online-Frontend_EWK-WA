@@ -43,7 +43,6 @@ BACKEND_URL_PLACEHOLDER="/BACKEND_URL"
 
 echo "Replacing placeholder '${APP_PATH_PLACEHOLDER}' with '${APP_PATH}' in nginx configuration..."
 echo "Replacing placeholder '${APP_LOCATION_PLACEHOLDER}' with '${APP_LOCATION}' in nginx configuration..."
-echo "Replacing placeholder '${APP_LOCATION_ALIAS_PLACEHOLDER}' with '${APP_LOCATION_ALIAS}' in nginx configuration..."
 echo "Replacing placeholder '${BACKEND_PATH_PLACEHOLDER}' with '${BACKEND_PATH}' in nginx configuration..."
 echo "Replacing placeholder '${BACKEND_URL_PLACEHOLDER}' with '${BACKEND_URL%/}/' in nginx configuration..."
 
