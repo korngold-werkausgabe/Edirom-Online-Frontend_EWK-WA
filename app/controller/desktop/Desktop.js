@@ -24,7 +24,7 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
         'desktop.Desktop'
     ],
 
-    init: function() {
+    init: function () {
         this.desktop = null;
 
         this.control({
@@ -46,12 +46,11 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
         });
     },
 
-    onDesktopRendered: function(desktop) {
+    onDesktopRendered: function (desktop) {
         this.desktop = desktop;
-        this.desktop.taskbar.addListener('switchDesktop', this.switchDesktop, this);
 
         this.desktop.taskbar.addListener('openConcordanceNavigator', this.openConcordanceNavigator, this);
-        
+
         var concNavOnStart = window.getPreference('concordance_navigator_open_on_start', true);
         var hasConnectionParam = this.application.activeConnection != null;
         if ((concNavOnStart != null && concNavOnStart) || hasConnectionParam) {
@@ -59,6 +58,7 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
         }
 
         this.desktop.taskbar.addListener('openHelp', this.openHelp, this);
+        this.desktop.taskbar.addListener('openAbout', this.openAbout, this);
         //TODO: Suchfenster einbauen
         /*this.desktop.taskbar.addListener('openSearchWindow', this.openSearchWindow, this);*/
 
@@ -67,45 +67,50 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
         this.desktop.taskbar.addListener('sortVertically', this.sortVertically, this);
     },
 
-    addWindowToActiveDesktop: function(window) {
+    addWindowToActiveDesktop: function (window) {
         this.desktop.addWindow(window);
     },
 
-    getActiveDesktop: function() {
+    getActiveDesktop: function () {
         return this.desktop;
     },
 
-    openConcordanceNavigator: function() {
+    openConcordanceNavigator: function () {
         var me = this;
         me.desktop.openConcordanceNavigator();
     },
 
-    openHelp: function() {
+    openAbout: function () {
+        var me = this;
+        me.desktop.openAbout();
+    },
+
+    openHelp: function () {
         var me = this;
         me.desktop.openHelp();
     },
-    
-    onSpecialKey: function(field, e) {
+
+    onSpecialKey: function (field, e) {
         var me = this;
-        
+
         if (e.getKey() == e.ENTER) {
             var term = field.getValue();
             me.desktop.openSearchWindow(term);
         }
     },
 
-    onOpenSearchWindow: function(button, event, args) {
+    onOpenSearchWindow: function (button, event, args) {
         var me = this;
         var term = button.textField.getValue();
         me.desktop.openSearchWindow(term);
     },
 
-    onOpenAboutWindow: function(button, event, args) {
+    onOpenAboutWindow: function (button, event, args) {
         var me = this;
         me.desktop.openAboutWindow();
     },
 
-    onSwitchToMobile: function() {
+    onSwitchToMobile: function () {
         localStorage.setItem('edirom-ui-mode', 'mobile');
 
         var params = new URLSearchParams();
@@ -116,38 +121,38 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
         window.location.href = 'mobile/index.html?' + params.toString();
     },
 
-    switchDesktop: function(desk) {
+    switchDesktop: function (desk) {
         this.desktop.switchDesktop(desk);
     },
 
-    cloneWinsCollectionWithoutMinimized: function(wins) {
+    cloneWinsCollectionWithoutMinimized: function (wins) {
         var set = new Ext.util.MixedCollection();
 
-        wins.each(function(win) {
-            if(!win.minimized) set.add(win);
+        wins.each(function (win) {
+            if (!win.minimized) set.add(win);
         });
 
         return set;
     },
 
-    sortHorizontally: function() {
+    sortHorizontally: function () {
         var desktop = this.desktop;
         var wins = desktop.getActiveWindowsSet(true);
         wins = this.cloneWinsCollectionWithoutMinimized(wins);
 
-        if(wins == null || wins.length == 0)
-	        return;
+        if (wins == null || wins.length == 0)
+            return;
 
         var size = desktop.getUsableSize();
 
         var left = 0;
         var n = wins.length;
-		var w = size.width/n;
+        var w = size.width / n;
 
-		wins.each(function(win) {
-            
+        wins.each(function (win) {
+
             var contentConfig = win.getContentConfig();
-            
+
             var to = {
                 y: desktop.getTopBarHeight() + 2,
                 x: left + 3,
@@ -163,28 +168,28 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
                 to: to
             }, true));
 
-			left = left + w;
-		});
+            left = left + w;
+        });
     },
 
-    sortVertically: function() {
+    sortVertically: function () {
         var desktop = this.desktop;
         var wins = desktop.getActiveWindowsSet(true);
         wins = this.cloneWinsCollectionWithoutMinimized(wins);
 
-        if(wins == null || wins.length == 0)
-	        return;
+        if (wins == null || wins.length == 0)
+            return;
 
         var size = desktop.getUsableSize();
 
         var top = desktop.getTopBarHeight();
         var n = wins.length;
-		var h = size.height/n;
+        var h = size.height / n;
 
-		wins.each(function(win) {
-		  
-		  var contentConfig = win.getContentConfig();
-		
+        wins.each(function (win) {
+
+            var contentConfig = win.getContentConfig();
+
             var to = {
                 y: top + 2,
                 x: 3,
@@ -200,16 +205,16 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
                 to: to
             }, true));
 
-			top = top + h;
-		});
+            top = top + h;
+        });
     },
 
-    sortGrid: function() {
+    sortGrid: function () {
         var desktop = this.desktop;
         var wins = desktop.getActiveWindowsSet(true);
         wins = this.cloneWinsCollectionWithoutMinimized(wins);
 
-        if(wins == null || wins.length == 0)
+        if (wins == null || wins.length == 0)
             return;
 
         var size = desktop.getUsableSize();
@@ -219,16 +224,16 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
 
         var optArray = this.findOptimalLenBrt(wins.length);
 
-        wins.each(function(win) {
+        wins.each(function (win) {
             if (!win.isVisible() || win.maximized)
                 return;
 
             var contentConfig = win.getContentConfig();
 
-            if((left + (size.width / optArray[0])) > size.width) {
-			    top = top + (size.height / optArray[1]);
-				left = 0;
-			}
+            if ((left + (size.width / optArray[0])) > size.width) {
+                top = top + (size.height / optArray[1]);
+                left = 0;
+            }
 
             var to = {
                 y: top + 2,
@@ -248,7 +253,7 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
             left = left + (size.width / optArray[0]);
         });
     },
-    getGridPositioning: function(numWins) {
+    getGridPositioning: function (numWins) {
         var desktop = this.desktop;
         var size = desktop.getUsableSize();
 
@@ -259,12 +264,12 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
 
         var optArray = this.findOptimalLenBrt(numWins);
 
-        for(var i = 0; i < numWins; i++) {
+        for (var i = 0; i < numWins; i++) {
 
-            if((left + (size.width / optArray[0])) > size.width) {
-			    top = top + (size.height / optArray[1]);
-				left = 0;
-			}
+            if ((left + (size.width / optArray[0])) > size.width) {
+                top = top + (size.height / optArray[1]);
+                left = 0;
+            }
 
             positions['win_' + i] = {
                 y: top + 2,
@@ -278,18 +283,18 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
 
         return positions;
     },
-    
-    getHorizontalPositioning: function(numWins) {
+
+    getHorizontalPositioning: function (numWins) {
         var desktop = this.desktop;
         var size = desktop.getUsableSize();
-        var w = size.width/numWins;
-        
+        var w = size.width / numWins;
+
         var positions = {};
 
         var left = 0;
         var top = 0;
 
-        for(var i = 0; i < numWins; i++) {
+        for (var i = 0; i < numWins; i++) {
 
             positions['win_' + i] = {
                 y: top + 2,
@@ -303,18 +308,18 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
 
         return positions;
     },
-    
-    getVerticalPositioning: function(numWins) {
+
+    getVerticalPositioning: function (numWins) {
         var desktop = this.desktop;
         var size = desktop.getUsableSize();
-        var h = size.height/numWins;
-        
+        var h = size.height / numWins;
+
         var positions = {};
 
         var left = 0;
         var top = 0;
 
-        for(var i = 0; i < numWins; i++) {
+        for (var i = 0; i < numWins; i++) {
 
             positions['win_' + i] = {
                 y: top + 2,
@@ -329,55 +334,55 @@ Ext.define('EdiromOnline.controller.desktop.Desktop', {
         return positions;
     },
 
-    findOptimalLenBrt: function(number){
-    	//finds optimal length breadth for each window [number = total windows]
-		if(number == 1)
-			return [1,1];
+    findOptimalLenBrt: function (number) {
+        //finds optimal length breadth for each window [number = total windows]
+        if (number == 1)
+            return [1, 1];
 
-		else if(number == 2)
-			return [2,1];
+        else if (number == 2)
+            return [2, 1];
 
-		//number should be non prime
-		var isPrime = this.isPrime(number);
+        //number should be non prime
+        var isPrime = this.isPrime(number);
 
-		if(isPrime)
-			number = number+1;
+        if (isPrime)
+            number = number + 1;
 
-		//Length should be greater than breadth
-		var diff = number;
-		var j = 1;
-		var opti;
-		var optj;
+        //Length should be greater than breadth
+        var diff = number;
+        var j = 1;
+        var opti;
+        var optj;
 
-        for(var i = 1; i <= number/2; i++) {
-			if(number % i != 0)
-				continue;
+        for (var i = 1; i <= number / 2; i++) {
+            if (number % i != 0)
+                continue;
 
-			j = number/i;
+            j = number / i;
 
-			var tmpDiff = j - i;
+            var tmpDiff = j - i;
 
-			if(tmpDiff < diff && tmpDiff>=0) {
-				diff = tmpDiff;
-				opti = i;
-				optj = j;
-			}
-		}
+            if (tmpDiff < diff && tmpDiff >= 0) {
+                diff = tmpDiff;
+                opti = i;
+                optj = j;
+            }
+        }
 
-        if(optj < opti)
-			return [opti,optj];
+        if (optj < opti)
+            return [opti, optj];
 
-		return [optj,opti];
-	 },
+        return [optj, opti];
+    },
 
-    isPrime:function(number){
-    	for(var i = 2; i <= number / 2 + 1; i++) {
-			if(number % i == 0) {
-				return false;
-			}
+    isPrime: function (number) {
+        for (var i = 2; i <= number / 2 + 1; i++) {
+            if (number % i == 0) {
+                return false;
+            }
 
-		}
-    	return true;
+        }
+        return true;
     }
 });
 
