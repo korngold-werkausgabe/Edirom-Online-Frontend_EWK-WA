@@ -45,8 +45,15 @@ Ext.define('EdiromOnline.view.webComponents.EdiromConnectedWorkspace', {
         webSocketJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(webSocketJsElement);
 
-        // The current page URL (including its query parameters, e.g. work/edition/lang) is used as the base for session invite links. The web component appends or overwrites its own "session" parameter on top of this.
-        var inviteUrl = window.location.href.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        // Only a whitelisted subset of the current URL's query parameters is carried over to session invite links — e.g. not the mobile/desktop view switch. The web component appends or overwrites its own "session" parameter on top of this.
+        var inviteParamWhitelist = ['edition', 'work', 'lang'];
+        var currentUrlParams = new URL(window.location.href).searchParams;
+        var inviteUrlObj = new URL(window.location.pathname, window.location.origin);
+        inviteParamWhitelist.forEach(function (param) {
+            var value = currentUrlParams.get(param);
+            if (value !== null) inviteUrlObj.searchParams.set(param, value);
+        });
+        var inviteUrl = inviteUrlObj.toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 
         // A "session" URL parameter (as produced by the invite-url above) auto-joins that session on startup.
         var sessionParam = EdiromOnline.getApplication().getURLParameter('session');
