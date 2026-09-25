@@ -16,11 +16,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Edirom Online.  If not, see <http://www.gnu.org/licenses/>.
  */
-Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
+Ext.define('EdiromOnline.view.webComponents.EdiromConnectedWorkspace', {
 
     extend: 'Ext.container.Container',
 
-    alias: 'widget.ediromWebSocketConnector',
+    alias: 'widget.ediromConnectedWorkspace',
 
     requires: [
     ],
@@ -39,13 +39,13 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
 
         let webSocketJsElement = document.createElement("script");
         webSocketJsElement.setAttribute("defer", "defer");
-        console.log("Setting web socket connector script src");
+        console.log("Setting connected workspace script src");
 
-        webSocketJsElement.setAttribute("src", "resources/js/edirom-web-socket-connector/edirom-web-socket-connector.js")
+        webSocketJsElement.setAttribute("src", "resources/js/edirom-connected-workspace/edirom-connected-workspace.js")
         webSocketJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(webSocketJsElement);
 
-        me.html = `<edirom-web-socket-connector id="web-socket" ws-url="${wsUrl}"></edirom-web-socket-connector>`;
+        me.html = `<edirom-connected-workspace id="connected-workspace" ws-url="${wsUrl}"></edirom-connected-workspace>`;
         me.style = {
             "--primary-color": "#000000",
             "--secondary-color": "#cacaca",

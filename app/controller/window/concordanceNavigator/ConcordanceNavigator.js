@@ -71,9 +71,9 @@ Ext.define('EdiromOnline.controller.window.concordanceNavigator.ConcordanceNavig
             if (me.suppressBroadcast) {
                 me.suppressBroadcast = false;
             } else {
-                var wsConnector = me.application.getController('webComponents.EdiromWebSocketConnector');
-                if (wsConnector) {
-                    wsConnector.broadcastConnection(e.detail.connectionId);
+                var connectedWorkspace = me.application.getController('webComponents.EdiromConnectedWorkspace');
+                if (connectedWorkspace) {
+                    connectedWorkspace.broadcastConnection(e.detail.connectionId);
                 }
             }
         });

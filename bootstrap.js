@@ -39,7 +39,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "EdiromOnline.controller.desktop.TaskBar": [],
   "EdiromOnline.controller.desktop.TopBar": [],
   "EdiromOnline.controller.navigator.Navigator": [],
-  "EdiromOnline.controller.webComponents.EdiromWebSocketConnector": [],
+  "EdiromOnline.controller.webComponents.EdiromConnectedWorkspace": [],
   "EdiromOnline.controller.window.AnnotationView": [],
   "EdiromOnline.controller.window.HeaderView": [],
   "EdiromOnline.controller.window.HelpWindow": [],
@@ -71,7 +71,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "EdiromOnline.view.navigator.Navigator": [],
   "EdiromOnline.view.utils.EnhancedSlider": [],
   "EdiromOnline.view.utils.Lightbox": [],
-  "EdiromOnline.view.webComponents.EdiromWebSocketConnector": [],
+  "EdiromOnline.view.webComponents.EdiromConnectedWorkspace": [],
   "EdiromOnline.view.window.AnnotationView": [],
   "EdiromOnline.view.window.BottomBar": [],
   "EdiromOnline.view.window.HeaderView": [],
@@ -953,7 +953,7 @@ Ext.ClassManager.addNameAliasMappings({
   "EdiromOnline.controller.desktop.TaskBar": [],
   "EdiromOnline.controller.desktop.TopBar": [],
   "EdiromOnline.controller.navigator.Navigator": [],
-  "EdiromOnline.controller.webComponents.EdiromWebSocketConnector": [],
+  "EdiromOnline.controller.webComponents.EdiromConnectedWorkspace": [],
   "EdiromOnline.controller.window.AnnotationView": [],
   "EdiromOnline.controller.window.HeaderView": [],
   "EdiromOnline.controller.window.HelpWindow": [],
@@ -995,8 +995,8 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "EdiromOnline.view.utils.EnhancedSlider": [],
   "EdiromOnline.view.utils.Lightbox": [],
-  "EdiromOnline.view.webComponents.EdiromWebSocketConnector": [
-    "widget.ediromWebSocketConnector"
+  "EdiromOnline.view.webComponents.EdiromConnectedWorkspace": [
+    "widget.ediromConnectedWorkspace"
   ],
   "EdiromOnline.view.window.AnnotationView": [
     "widget.annotationView"

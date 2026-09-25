@@ -51,7 +51,7 @@ Ext.define('EdiromOnline.Application', {
         'window.text.FacsimileView',
         'window.text.TextFacsimileSplitView',
         'window.text.TextView',
-        'webComponents.EdiromWebSocketConnector'
+        'webComponents.EdiromConnectedWorkspace'
     ],
     
     models: [

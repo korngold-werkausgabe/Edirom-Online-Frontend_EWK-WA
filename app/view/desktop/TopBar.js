@@ -63,10 +63,10 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
 
         me.searchButton.textField = me.searchTextField;
 
-        // The WebSocket connector should only instantiate when a wsURL is actually configured.
+        // The connected workspace should only instantiate when a wsURL is actually configured.
         var wsUrl = EdiromOnline.getApplication().getController('ConfigController').getConfig('wsURL');
         if (wsUrl) {
-            me.webSocket = Ext.create('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {});
+            me.connectedWorkspace = Ext.create('EdiromOnline.view.webComponents.EdiromConnectedWorkspace', {});
         }
 
         me.items = [
@@ -88,7 +88,7 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
                     '->',
                     me.searchTextField,
                     me.searchButton,
-                    me.webSocket,
+                    me.connectedWorkspace,
                     me.aboutButton
                 ].filter(function (item) { return !!item; })
             })

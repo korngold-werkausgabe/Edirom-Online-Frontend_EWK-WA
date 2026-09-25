@@ -16,19 +16,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Edirom Online.  If not, see <http://www.gnu.org/licenses/>.
  */
-Ext.define('EdiromOnline.controller.webComponents.EdiromWebSocketConnector', {
+Ext.define('EdiromOnline.controller.webComponents.EdiromConnectedWorkspace', {
 
     extend: 'Ext.app.Controller',
 
     navwin: null,
 
     views: [
-        'webComponents.EdiromWebSocketConnector'
+        'webComponents.EdiromConnectedWorkspace'
     ],
 
     init: function () {
         this.control({
-            'ediromWebSocketConnector': {
+            'ediromConnectedWorkspace': {
                 render: this.onRendered
             }
         });
@@ -41,8 +41,8 @@ Ext.define('EdiromOnline.controller.webComponents.EdiromWebSocketConnector', {
         component.initialized = true;
 
         var app = me.application;
-        me.ediromWebSocketConnector = document.querySelector("#web-socket");
-        me.ediromWebSocketConnector.addEventListener('received-message', function (e) {
+        me.ediromConnectedWorkspace = document.querySelector("#connected-workspace");
+        me.ediromConnectedWorkspace.addEventListener('received-message', function (e) {
             console.log("Received Event!");
             console.log("detail:");
             console.log(e.detail);
@@ -72,7 +72,7 @@ Ext.define('EdiromOnline.controller.webComponents.EdiromWebSocketConnector', {
      */
     broadcastConnection: function (connectionId) {
         var me = this;
-        if (!me.ediromWebSocketConnector) return;
-        me.ediromWebSocketConnector.sendMessage('syncState', { connection: connectionId });
+        if (!me.ediromConnectedWorkspace) return;
+        me.ediromConnectedWorkspace.sendMessage('syncState', { connection: connectionId });
     },
 });
