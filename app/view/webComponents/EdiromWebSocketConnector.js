@@ -30,8 +30,8 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
     initComponent: function () {
         var me = this;
 
-        me.width = 40;
-        me.height = 41;
+        me.width = 24;
+        me.height = 24;
 
         // This view is only instantiated by TopBar.js when a wsURL is
         // configured (see TopBar.js), so no config check is needed here.
