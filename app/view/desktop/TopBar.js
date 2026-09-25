@@ -63,7 +63,11 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
 
         me.searchButton.textField = me.searchTextField;
 
-        me.webSocket = Ext.create('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {});
+        // The WebSocket connector should only instantiate when a wsURL is actually configured.
+        var wsUrl = EdiromOnline.getApplication().getController('ConfigController').getConfig('wsURL');
+        if (wsUrl) {
+            me.webSocket = Ext.create('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {});
+        }
 
         me.items = [
             new Ext.toolbar.Toolbar({
@@ -86,7 +90,7 @@ Ext.define('EdiromOnline.view.desktop.TopBar', {
                     me.searchButton,
                     me.webSocket,
                     me.aboutButton
-                ]
+                ].filter(function (item) { return !!item; })
             })
         ];
 

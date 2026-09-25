@@ -33,13 +33,9 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
         me.width = 40;
         me.height = 41;
 
-        // Read the WebSocket server URL from the runtime configuration (config.json).
-        // When it is empty, the WebSocket features are disabled.
+        // This view is only instantiated by TopBar.js when a wsURL is
+        // configured (see TopBar.js), so no config check is needed here.
         var wsUrl = EdiromOnline.getApplication().getController('ConfigController').getConfig('wsURL');
-
-        if (!wsUrl) {
-            me.hidden = true;
-        }
 
         let webSocketJsElement = document.createElement("script");
         webSocketJsElement.setAttribute("defer", "defer");
@@ -49,11 +45,7 @@ Ext.define('EdiromOnline.view.webComponents.EdiromWebSocketConnector', {
         webSocketJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(webSocketJsElement);
 
-        var wsUrlAttribute = wsUrl ? ` ws-url="${wsUrl}"` : '';
-
-
-
-        me.html = `<edirom-web-socket-connector id="web-socket"${wsUrlAttribute}></edirom-web-socket-connector>`;
+        me.html = `<edirom-web-socket-connector id="web-socket" ws-url="${wsUrl}"></edirom-web-socket-connector>`;
         me.style = {
             "--primary-color": "#000000",
             "--secondary-color": "#cacaca",
