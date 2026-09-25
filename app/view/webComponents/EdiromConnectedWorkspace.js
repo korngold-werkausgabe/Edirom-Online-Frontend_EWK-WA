@@ -45,7 +45,14 @@ Ext.define('EdiromOnline.view.webComponents.EdiromConnectedWorkspace', {
         webSocketJsElement.setAttribute("type", "module");
         document.querySelector("head").appendChild(webSocketJsElement);
 
-        me.html = `<edirom-connected-workspace id="connected-workspace" ws-url="${wsUrl}"></edirom-connected-workspace>`;
+        // The current page URL (including its query parameters, e.g. work/edition/lang) is used as the base for session invite links. The web component appends or overwrites its own "session" parameter on top of this.
+        var inviteUrl = window.location.href.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+
+        // A "session" URL parameter (as produced by the invite-url above) auto-joins that session on startup.
+        var sessionParam = EdiromOnline.getApplication().getURLParameter('session');
+        var sessionAttr = sessionParam !== null ? ` session="${sessionParam.replace(/"/g, '&quot;')}"` : '';
+
+        me.html = `<edirom-connected-workspace id="connected-workspace" ws-url="${wsUrl}" invite-url="${inviteUrl}"${sessionAttr}></edirom-connected-workspace>`;
         me.style = {
             "--primary-color": "#000000",
             "--secondary-color": "#cacaca",
