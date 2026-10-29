@@ -7,46 +7,57 @@
     line-height: 1;
 }
 
-.annotIcon:before {
+/* Edition stylesheets only supply content, font-family and font-size for a
+   category. The glyph is centred by flexbox on its advance box and then moved
+   onto its visible ink by --annot-glyph-dx/dy, which AnnotationIconCentering.js
+   measures per glyph. Older editions position their glyph with
+   `position: relative; top/left`; those offsets are neutralised so they cannot
+   push the icon off-centre. An edition that still wants a manual nudge can set
+   --annot-glyph-nudge-x / --annot-glyph-nudge-y on the badge. */
+.annotIcon:before,
+.annotIcon:after {
     flex: none;
     line-height: 1;
     font-weight: normal;
     white-space: nowrap;
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    translate: calc(var(--annot-glyph-dx, 0px) + var(--annot-glyph-nudge-x, 0px))
+               calc(var(--annot-glyph-dy, 0px) + var(--annot-glyph-nudge-y, 0px));
 }
 
 .annotIcon.annotation\.category\.notentext:before {
     content: "\E1D5";
     font-family: Bravura;
     font-size: 13px;
-    transform: translate(0em, 0.377em);
 }
 
 .annotIcon.annotation\.category\.halsungBalkung:before {
     content: "\E1F3";
     font-family: Bravura;
     font-size: 13px;
-    transform: translate(0em, 0.377em);
 }
 
 .annotIcon.annotation\.category\.taktartMetrum:before {
     content: "\E099";
     font-family: Bravura;
     font-size: 25px;
-    transform: translate(0em, 0em);
 }
 
 .annotIcon.annotation\.category\.pausensetzung:before {
     content: "\E4E5";
     font-family: Bravura;
     font-size: 17px;
-    transform: translate(0em, 0.006em);
 }
 
 .annotIcon.annotation\.category\.tondauer:before {
     content: "\E1D2";
     font-family: Bravura;
     font-size: 20px;
-    transform: translate(-0.005em, 0em);
 }
 
 .annotIcon.annotation\.category\.vortragsanweisung:before {
@@ -54,63 +65,54 @@
     font-family: 'Times New Roman', Times, serif;
     font-size: 10px;
     font-style: italic;
-    transform: translate(0.05em, 0em);
 }
 
 .annotIcon.annotation\.category\.artikulation:before {
     content: "\E4B2";
     font-family: Bravura;
     font-size: 25px;
-    transform: translate(0em, 0.12em);
 }
 
 .annotIcon.annotation\.category\.dynamik:before {
     content: "\E520";
     font-family: Bravura;
     font-size: 12px;
-    transform: translate(0.042em, 0.075em);
 }
 
 .annotIcon.annotation\.category\.pedalsetzung:before {
     content: "\E650";
     font-family: Bravura;
     font-size: 12px;
-    transform: translate(0em, 0.283em);
 }
 
 .annotIcon.annotation\.category\.phrasierungsboegen:before {
     content: "---";
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
-    transform: translate(0em, -0.075em);
 }
 
 .annotIcon.annotation\.category\.bogensetzung:before {
     content: "\E4BA";
     font-family: Bravura;
     font-size: 40px;
-    transform: translate(-0.003em, 0.075em);
 }
 
 .annotIcon.annotation\.category\.hinzufügung:before {
     content: "+";
     font-family: Arial, Helvetica, sans-serif;
     font-size: 19px;
-    transform: translate(0em, 0.011em);
 }
 
 .annotIcon.annotation\.category\.streichung:before {
     content: "xxx";
     font-family: Arial, Helvetica, sans-serif;
     font-size: 9px;
-    transform: translate(0em, -0.067em);
 }
 
 .annotIcon.annotation\.category\.liedtext:before {
     content: "text";
     font-family: Arial, Helvetica, sans-serif;
     font-size: 9px;
-    transform: translate(-0.011em, 0.011em);
 }
 
 /* beschreibung / rasurTektur badges render an actual <edirom-icon> element

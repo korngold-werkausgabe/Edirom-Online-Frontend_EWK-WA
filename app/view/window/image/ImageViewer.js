@@ -137,6 +137,12 @@ Ext.define('EdiromOnline.view.window.image.ImageViewer', {
         }
         me.webComponent.setAttribute('overlay-stylesheets', Ext.JSON.encode(overlayStylesheets));
 
+        // The badges live in the component's shadow root, which the document-wide
+        // observer cannot see: centre their glyphs from here (see AnnotationIconCentering.js).
+        customElements.whenDefined('edirom-image-viewer').then(function() {
+            EdiromOnline.annotIconCentering.observe(me.webComponent.shadowRoot);
+        });
+
         // Forward the web component's zoom events as ExtJS 'zoomChanged' events.
         me.webComponent.addEventListener('zoom', function(event) {
             me.fireEvent('zoomChanged', event.detail.zoom);
